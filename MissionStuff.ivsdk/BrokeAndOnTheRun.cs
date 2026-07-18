@@ -22,15 +22,19 @@ namespace MissionStuff.ivsdk
         private static bool setMoney;
         private static int moneyRemain;
         private static int moneyLost;
+        private static bool loseRomanLike;
+        private static int likenessLost;
 
         // OtherShit
         private static bool loseMoney;
 
         public static void Init(SettingsFile settings)
         {
-            setMoney = settings.GetBoolean("MAIN", "NSSetMoneyRemaining", false);
-            moneyRemain = settings.GetInteger("MAIN", "NSMoneyRemaining", 25);
-            moneyLost = settings.GetInteger("MAIN", "NSMoneyLost", 10000);
+            setMoney = settings.GetBoolean("NIKO'S SORROW", "SetMoneyRemaining", false);
+            moneyRemain = settings.GetInteger("NIKO'S SORROW", "MoneyRemaining", 25);
+            moneyLost = settings.GetInteger("NIKO'S SORROW", "MoneyLost", 10000);
+            loseRomanLike = settings.GetBoolean("NIKO'S SORROW", "LoseRomanLikenessStat", false);
+            likenessLost = settings.GetInteger("NIKO'S SORROW", "StatDecrease", 17);
         }
         public static void Tick()
         {
@@ -43,7 +47,16 @@ namespace MissionStuff.ivsdk
                         ADD_SCORE(Main.PlayerIndex, (moneyRemain - (int)pMoney));
                     else
                         ADD_SCORE(Main.PlayerIndex, - moneyLost);
+                    loseMoney = true;
                 }
+                if (loseRomanLike)
+                {
+                    float romanLike = GET_FLOAT_STAT(1);
+                    IVTheScripts.SetGlobal(10994, (int)(romanLike - likenessLost));
+                    IVTheScripts.SetGlobal(10998, (int)(romanLike - likenessLost));
+                }
+
+                //IVGame.ShowSubtitleMessage((romanLike - 15).ToString() + IVTheScripts.GlobalVariables[10994].ToString() + IVTheScripts.GlobalVariables[10998].ToString());
             }
             else if (loseMoney)
                 loseMoney = false;

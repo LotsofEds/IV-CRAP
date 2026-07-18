@@ -28,12 +28,15 @@ namespace MissionStuff.ivsdk
 
         public static void Init(SettingsFile settings)
         {
-            string SCOString = settings.GetValue("MAIN", "MoreWantedSCOList", "");
+            string SCOString = settings.GetValue("MORE WANTED STARS", "SCOList", "");
 
             SCOList.Clear();
             foreach (string SCOName in SCOString.Split(','))
             {
-                SCOList.Add(SCOName);
+                if (!Main.scoSettings.DoesSectionExists(SCOName))
+                    IVGame.Console.Print("~r~ERROR: Script name in MoreWantedStars SCOList does not have a section in SCOSettings.ini!");
+                else
+                    SCOList.Add(SCOName);
             }
         }
         private static void LoadWantedData(SettingsFile settings, string scoName)
@@ -49,8 +52,9 @@ namespace MissionStuff.ivsdk
             {
                 if (NativeGame.IsScriptRunning(MissionSCO))
                 {
+                    if (missionName != MissionSCO)
+                        LoadWantedData(Main.scoSettings, MissionSCO);
                     missionName = MissionSCO;
-                    LoadWantedData(Main.mainSettings, MissionSCO);
                     if (IS_THIS_PRINT_BEING_DISPLAYED(wantedGXT, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0))
                     {
                         SET_MAX_WANTED_LEVEL(maxWanted);

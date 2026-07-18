@@ -47,9 +47,9 @@ namespace MissionStuff.ivsdk
         private static int pVeh;
         public static void Init(SettingsFile settings)
         {
-            timeLimit = settings.GetUInteger("MAIN", "TTBTimeLimit", 180000);
-            newMessage = settings.GetValue("MAIN", "TTBMessage", "");
-            warnMessage = settings.GetValue("MAIN", "TTBWarning", "");
+            timeLimit = settings.GetUInteger("TIMED TO BLOW", "TimeLimit", 180000);
+            newMessage = settings.GetValue("TIMED TO BLOW", "Message", "");
+            warnMessage = settings.GetValue("TIMED TO BLOW", "Warning", "");
         }
         public static void UnInit()
         {
@@ -58,6 +58,9 @@ namespace MissionStuff.ivsdk
             MARK_CHAR_AS_NO_LONGER_NEEDED(pPed3);
 
             MARK_CAR_AS_NO_LONGER_NEEDED(pVeh);
+
+            hasWarned = false;
+            startTime = false;
         }
         public static void Tick()
         {
@@ -65,14 +68,16 @@ namespace MissionStuff.ivsdk
             {
                 if (!startTime && (IS_THIS_PRINT_BEING_DISPLAYED("TRKBRN_04", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)))
                 {
-                    //IVText.TheIVText.ReplaceTextOfTextLabel("TRKBRN_04", newMessage);
+                    CLEAR_BRIEF();
+                    IVText.TheIVText.ReplaceTextOfTextLabel("TM_2_30", newMessage);
+                    PRINT_NOW("TM_2_29", 5000, true);
                     GET_GAME_TIMER(out fTimer);
                     startTime = true;
                 }
                 else if (startTime)
                 {
-                    if (IS_THIS_PRINT_BEING_DISPLAYED("TRKBRN_04", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0))
-                        IVGame.ShowSubtitleMessage(newMessage, 5000);
+                    //if (IS_THIS_PRINT_BEING_DISPLAYED("TRKBRN_04", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0))
+                        //IVGame.ShowSubtitleMessage(newMessage, 5000);
                     if (IS_THIS_PRINT_BEING_DISPLAYED("TRKBRN_10", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0))
                         startTime = false;
                     //IVGame.ShowSubtitleMessage(gTimer.ToString() + "  " + (fTimer + 20000).ToString());
@@ -120,8 +125,8 @@ namespace MissionStuff.ivsdk
 
                     if (Main.gTimer >= fTimer + (timeLimit - 30000) && !hasWarned)
                     {
-                        IVText.TheIVText.ReplaceTextOfTextLabel("PLACEHOLDERSL", warnMessage);
-                        PRINT_HELP("PLACEHOLDERSL");
+                        IVText.TheIVText.ReplaceTextOfTextLabel("TM_2_29", warnMessage);
+                        PRINT_HELP("TM_2_29");
                         //IVGame.ShowSubtitleMessage(warnMessage, 4000);
                         hasWarned = true;
                     }
@@ -129,14 +134,7 @@ namespace MissionStuff.ivsdk
             }
             else if (startTime)
             {
-                MARK_CHAR_AS_NO_LONGER_NEEDED(pPed1);
-                MARK_CHAR_AS_NO_LONGER_NEEDED(pPed2);
-                MARK_CHAR_AS_NO_LONGER_NEEDED(pPed3);
-
-                MARK_CAR_AS_NO_LONGER_NEEDED(pVeh);
-
-                hasWarned = false;
-                startTime = false;
+                UnInit();
             }
         }
     }

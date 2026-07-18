@@ -88,6 +88,7 @@ namespace MissionStuff.ivsdk
 
             if (!HAS_CHAR_GOT_WEAPON(Main.PlayerHandle, pWeap) && pWeap > 0)
                 GIVE_WEAPON_TO_CHAR(Main.PlayerHandle, pWeap, pAmmo1, false);
+
             taskStatus = 0;
             bernieCheckPoint = -1;
             switchSeats = false;
@@ -98,14 +99,14 @@ namespace MissionStuff.ivsdk
         }
         public static void Init(SettingsFile settings)
         {
-            plyrWeapon = settings.GetInteger("MAIN", "BAWeaponToGive", 15);
-            enemyWeaponA = settings.GetInteger("MAIN", "BAEnemyWeapon1", 13);
-            enemyWeaponB = settings.GetInteger("MAIN", "BAEnemyWeapon2", 14);
-            enemyAccuracy = settings.GetInteger("MAIN", "BAEnemyAccuracy", 70);
-            enemyFireRate = settings.GetInteger("MAIN", "BAEnemyFireRate", 60);
-            enemyHealth = settings.GetUInteger("MAIN", "BAEnemyHealth", 145);
-            newMessage = settings.GetValue("MAIN", "BAMessage", "");
-            warnMessage = settings.GetValue("MAIN", "BAWarning", "");
+            plyrWeapon = settings.GetInteger("ALIVE IF NOT EXACTLY WELL", "WeaponToGive", 15);
+            enemyWeaponA = settings.GetInteger("ALIVE IF NOT EXACTLY WELL", "EnemyWeapon1", 13);
+            enemyWeaponB = settings.GetInteger("ALIVE IF NOT EXACTLY WELL", "EnemyWeapon2", 14);
+            enemyAccuracy = settings.GetInteger("ALIVE IF NOT EXACTLY WELL", "EnemyAccuracy", 70);
+            enemyFireRate = settings.GetInteger("ALIVE IF NOT EXACTLY WELL", "EnemyFireRate", 60);
+            enemyHealth = settings.GetUInteger("ALIVE IF NOT EXACTLY WELL", "EnemyHealth", 145);
+            newMessage = settings.GetValue("ALIVE IF NOT EXACTLY WELL", "Message", "");
+            warnMessage = settings.GetValue("ALIVE IF NOT EXACTLY WELL", "Warning", "");
         }
         public static void ChaseEndCutscene()
         {
@@ -221,11 +222,35 @@ namespace MissionStuff.ivsdk
             {
                 //IVGame.ShowSubtitleMessage(GET_ENGINE_HEALTH(pVeh).ToString() + "  " + GET_PETROL_TANK_HEALTH(pVeh).ToString());
                 warnPlayer = true;
-                IVText.TheIVText.ReplaceTextOfTextLabel("PLACEHOLDERSL", warnMessage);
-                PRINT_HELP("PLACEHOLDERSL");
+                IVText.TheIVText.ReplaceTextOfTextLabel("TM_2_29", warnMessage);
+                PRINT_HELP("TM_2_29");
             }
             if (IS_THIS_PRINT_BEING_DISPLAYED("BER3_GOD2", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0))
-                IVGame.ShowSubtitleMessage(newMessage, 5000);
+            {
+                CLEAR_BRIEF();
+                IVText.TheIVText.ReplaceTextOfTextLabel("TM_2_27", newMessage);
+                PRINT_NOW("TM_2_27", 5000, true);
+            }
+            if (!triggerCutscene && !endCutscene)
+            {
+                IVText.TheIVText.ReplaceTextOfTextLabel("TM_2_30", "Boat Health:");
+
+                float tankHealth = ass.PetrolTankHealth / 40000;
+                if (tankHealth < 0)
+                    tankHealth = 0;
+                float barPos = 0.9f - (0.075f - tankHealth) / 2;
+
+                SET_TEXT_FONT(0);
+                SET_TEXT_SCALE(0.3f, 0.3f);
+                SET_TEXT_COLOUR(255, 255, 255, 255);
+                SET_TEXT_CENTRE(true);
+
+                DISPLAY_TEXT(0.9f, 0.35f, "TM_2_30");
+
+                DRAW_RECT(0.9f, 0.4f, 0.075f, 0.015f, 120, 120, 120, 192);
+                DRAW_RECT(barPos, 0.4f, tankHealth, 0.015f, 255, 255, 255, 255);
+            }
+            //IVGame.ShowSubtitleMessage(newMessage, 5000);
 
             for (int i = 0; i < 16; i++)
             {
@@ -691,8 +716,17 @@ namespace MissionStuff.ivsdk
                 else if (endCutscene && Main.gTimer >= fTimer + 12000)
                     DESTROY_ALL_CAMS();
 
+                if (IS_THIS_PRINT_BEING_DISPLAYED("BER3_FAL4", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0))
+                {
+                    if (DOES_CHAR_EXIST(berniePed))
+                        CLEAR_CHAR_TASKS(berniePed);
+                    if (DOES_VEHICLE_EXIST(pVeh))
+                        LOCK_CAR_DOORS(pVeh, 1);
+                }
+
                 if (IS_THIS_PRINT_BEING_DISPLAYED("BER3_GOD3b", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0))
-                    IVGame.ShowSubtitleMessage("~s~Follow ~r~Dimitri's men~s~ and get rid of them.", 5000);
+                    IVText.TheIVText.ReplaceTextOfTextLabel("BER3_GOD3b", "~s~Follow and get rid of ~r~Dimitri's men.~s~");
+                //IVGame.ShowSubtitleMessage("~s~Follow ~r~Dimitri's men~s~ and get rid of them.", 5000);
 
                 else if (LOCATE_CHAR_IN_CAR_3D(Main.PlayerHandle, 1129.244f, -883.3863f, 3.5f, 4.0f, 4.0f, 4.0f, false))
                 {
@@ -732,6 +766,8 @@ namespace MissionStuff.ivsdk
                     foreach (var ped in PedHelper.PedHandles)
                     {
                         int pedHandle = ped.Value;
+                        if (!DOES_CHAR_EXIST(pedHandle))
+                            continue;
                         if (!IS_PED_A_MISSION_PED(pedHandle))
                             continue;
                         if (pedHandle == Main.PlayerHandle)
@@ -762,7 +798,11 @@ namespace MissionStuff.ivsdk
                         else
                         {
                             if (IS_CHAR_IN_ANY_BOAT(pedHandle) && !IS_CHAR_ARMED(pedHandle, 4))
+                            {
+                                GET_CAR_CHAR_IS_USING(pedHandle, out int targetBoat);
                                 SET_CHAR_CAN_BE_SHOT_IN_VEHICLE(pedHandle, false);
+                                SET_CAR_PROOFS(targetBoat, true, true, true, true, true);
+                            }
                         }
                     }
                     switchSeats = false;
@@ -770,40 +810,7 @@ namespace MissionStuff.ivsdk
             }
             else if (startChase)
             {
-                for (int i = 0; i < 16; i++)
-                {
-                    DELETE_CAR(ref enemyVehicles[i]);
-                    DELETE_CHAR(ref driverPeds[i]);
-                    DELETE_CHAR(ref shooterPeds[i]);
-                }
-                for (int i = 0; i < 9; i++)
-                {
-                    DELETE_CHAR(ref landEnemyPeds[i]);
-                }
-
-                MARK_MODEL_AS_NO_LONGER_NEEDED(GET_HASH_KEY("squalo"));
-                MARK_MODEL_AS_NO_LONGER_NEEDED(GET_HASH_KEY("jetmax"));
-                MARK_MODEL_AS_NO_LONGER_NEEDED(GET_HASH_KEY("bm_drum_fla2"));
-                MARK_MODEL_AS_NO_LONGER_NEEDED(GET_HASH_KEY("m_y_gru2_lo_01"));
-                MARK_MODEL_AS_NO_LONGER_NEEDED(GET_HASH_KEY("m_m_gru2_lo_02"));
-
-                MARK_OBJECT_AS_NO_LONGER_NEEDED(barrelOne);
-                MARK_OBJECT_AS_NO_LONGER_NEEDED(barrelTwo);
-
-                if (pWeapSlot != 2 && pWeapSlot != 4 && pWeapSlot != 5 && pWeapSlot > 0)
-                    IVWeaponInfo.GetWeaponInfo((uint)plyrWeapon).WeaponSlot = pWeapSlot;
-
-                SET_CHAR_CAN_BE_SHOT_IN_VEHICLE(Main.PlayerHandle, true);
-
-                if (!HAS_CHAR_GOT_WEAPON(Main.PlayerHandle, pWeap) && pWeap > 0)
-                    GIVE_WEAPON_TO_CHAR(Main.PlayerHandle, pWeap, pAmmo1, false);
-                taskStatus = 0;
-                bernieCheckPoint = -1;
-                switchSeats = false;
-                startChase = false;
-                triggerCutscene = false;
-                warnPlayer = false;
-                endCutscene = false;
+                UnInit();
             }
         }
     }

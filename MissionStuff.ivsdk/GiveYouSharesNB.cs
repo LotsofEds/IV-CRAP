@@ -35,12 +35,12 @@ namespace MissionStuff.ivsdk
         private static int currentBal;
         public static void Init(SettingsFile settings)
         {
-            debug = settings.GetBoolean("MAIN", "BEDebug", false);
-            romanStat = settings.GetFloat("MAIN", "RomanLikeRequirement", 80);
-            revenueGiven = settings.GetInteger("MAIN", "BERevenueGiven", 200);
-            maxRevenue = settings.GetInteger("MAIN", "BEMaxRevenue", 1000);
+            debug = settings.GetBoolean("I'LL GIVE YOU SHARES, NB", "Debug", false);
+            romanStat = settings.GetFloat("I'LL GIVE YOU SHARES, NB", "LikeRequirement", 80);
+            revenueGiven = settings.GetInteger("I'LL GIVE YOU SHARES, NB", "RevenueGiven", 200);
+            maxRevenue = settings.GetInteger("I'LL GIVE YOU SHARES, NB", "MaxRevenue", 1000);
         }
-        public static void GameLoad()
+        public static void IngameStart()
         {
             getDay = false;
         }
@@ -48,10 +48,10 @@ namespace MissionStuff.ivsdk
         {
             if (!getDay)
             {
-                if (!Main.mainSettings.DoesKeyExists(IVGenericGameStorage.ValidSaveName, "CurrentBalance"))
-                    Main.mainSettings.AddKeyToSection(IVGenericGameStorage.ValidSaveName, "CurrentBalance");
+                if (!Main.savefileSettings.DoesKeyExists(IVGenericGameStorage.ValidSaveName, "CurrentBalance"))
+                    Main.savefileSettings.AddKeyToSection(IVGenericGameStorage.ValidSaveName, "CurrentBalance");
 
-                currentBal = Main.mainSettings.GetInteger(IVGenericGameStorage.ValidSaveName, "CurrentBalance", 0);
+                currentBal = Main.savefileSettings.GetInteger(IVGenericGameStorage.ValidSaveName, "CurrentBalance", 0);
                 daysPassed = GET_INT_STAT(260);
                 getDay = true;
             }
@@ -101,17 +101,15 @@ namespace MissionStuff.ivsdk
                     }
                 }
             }
-            if (DID_SAVE_COMPLETE_SUCCESSFULLY() && GET_IS_DISPLAYINGSAVEMESSAGE())
-                SaveMoney(Main.mainSettings, currentBal);
         }
-        public static void SaveMoney(SettingsFile settings, int currBal)
+        public static void SaveMoney(SettingsFile settings)
         {
             if (!settings.DoesSectionExists(IVGenericGameStorage.ValidSaveName))
                 settings.AddSection(IVGenericGameStorage.ValidSaveName);
             if (!settings.DoesKeyExists(IVGenericGameStorage.ValidSaveName, "CurrentBalance"))
                 settings.AddKeyToSection(IVGenericGameStorage.ValidSaveName, "CurrentBalance");
 
-            settings.SetInteger(IVGenericGameStorage.ValidSaveName, "CurrentBalance", currBal);
+            settings.SetInteger(IVGenericGameStorage.ValidSaveName, "CurrentBalance", currentBal);
 
             settings.Save();
             settings.Load();

@@ -24,9 +24,9 @@ namespace MissionStuff.ivsdk
         private static float brakeSlowAmt;
         public static void Init(SettingsFile settings)
         {
-            downforceAmt = settings.GetFloat("MAIN", "DownforceAmount", 0);
-            speedBoostAmt = settings.GetFloat("MAIN", "SpeedBoostAmount", 0);
-            brakeSlowAmt = settings.GetFloat("MAIN", "BrakeSlowAmount", 0);
+            downforceAmt = settings.GetFloat("BETTER RACE AI", "DownforceAmount", 0);
+            speedBoostAmt = settings.GetFloat("BETTER RACE AI", "SpeedBoostAmount", 0);
+            brakeSlowAmt = settings.GetFloat("BETTER RACE AI", "BrakeSlowAmount", 0);
         }
         public static void Tick()
         {

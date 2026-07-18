@@ -60,6 +60,8 @@ namespace MissionStuff.ivsdk
                         foreach (var ped in PedHelper.PedHandles)
                         {
                             int pedHandle = ped.Value;
+                            if (!DOES_CHAR_EXIST(pedHandle))
+                                continue;
                             if (!IS_PED_A_MISSION_PED(pedHandle))
                                 continue;
                             if (pedHandle == Main.PlayerHandle)

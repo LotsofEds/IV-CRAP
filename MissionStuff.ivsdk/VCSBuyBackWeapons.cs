@@ -13,6 +13,7 @@ using System.Reflection;
 using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using static IVSDKDotNet.Native.Natives;
 
 namespace MissionStuff.ivsdk
@@ -29,58 +30,70 @@ namespace MissionStuff.ivsdk
         private static int fullPrice;
 
         // OtherShit
-        private static bool hasDied;
+        private static bool playerArrested;
+        private static bool deathArrest;
         private static bool canBribe;
         private static int bribeBlip;
         private static Vector3 bribeLoc;
         private static uint fTimer;
         public static void Init(SettingsFile settings)
         {
-            buyBackWeapons = settings.GetBoolean("MAIN", "BuyBackWeapons", false);
-            bribeDuration = settings.GetInteger("MAIN", "BribeDuration", 360000);
+            buyBackWeapons = settings.GetBoolean("REMOVE WEAPONS ON DEATH", "BuyBackWeapons", false);
+            bribeDuration = settings.GetInteger("REMOVE WEAPONS ON DEATH", "BribeDuration", 360000);
         }
         public static void UnInit()
         {
-            hasDied = false;
+            inventory.Clear();
+            ammo.Clear();
+            deathArrest = false;
+            playerArrested = false;
             REMOVE_BLIP(bribeBlip);
         }
-        public static void GameLoad()
+        public static void IngameStart()
         {
             fTimer = 0;
-            REMOVE_BLIP(bribeBlip);
         }
         public static void Tick()
         {
-            if (IS_CHAR_DEAD(Main.PlayerHandle) && IS_SCREEN_FADING_OUT() && !hasDied)
+            if ((IS_CHAR_DEAD(Main.PlayerHandle) || HAS_CHAR_BEEN_ARRESTED(Main.PlayerHandle)) && !deathArrest)
             {
-                inventory = GetWeaponInventory(true);
-                ammo = GetWeaponAmmoCounts();
+                inventory = Main.GetWeaponInventory(true);
+                ammo = Main.GetWeaponAmmoCounts();
 
-                REMOVE_ALL_CHAR_WEAPONS(Main.PlayerPed.GetHandle());
-                SET_CURRENT_CHAR_WEAPON(Main.PlayerPed.GetHandle(), (int)eWeaponType.WEAPON_UNARMED, true);
+                if (IS_CHAR_DEAD(Main.PlayerHandle))
+                {
+                    REMOVE_ALL_CHAR_WEAPONS(Main.PlayerPed.GetHandle());
+                    SET_CURRENT_CHAR_WEAPON(Main.PlayerPed.GetHandle(), (int)eWeaponType.WEAPON_UNARMED, true);
+                }
+                else
+                    playerArrested = true;
+
                 if (buyBackWeapons)
-                    hasDied = true;
+                    deathArrest = true;
             }
-            else if (hasDied && IS_SCREEN_FADING_IN() && !IS_CHAR_DEAD(Main.PlayerHandle))
+            else if (deathArrest && IS_SCREEN_FADING_IN() && !IS_CHAR_DEAD(Main.PlayerHandle) && !HAS_CHAR_BEEN_ARRESTED(Main.PlayerHandle))
             {
                 canBribe = false;
                 bribeLoc = Main.PlayerPos;
                 ShowBribeLocation();
-                if (!DOES_BLIP_EXIST(bribeBlip))
+                if (!DOES_BLIP_EXIST(bribeBlip) && canBribe)
                 {
                     // 1371.646, 621.487, 35.829
                     ADD_BLIP_FOR_COORD(bribeLoc.X, bribeLoc.Y, bribeLoc.Z, out bribeBlip);
 
                     NativeBlip pBlip = new NativeBlip(bribeBlip);
 
-                    pBlip.Icon = BlipIcon.Building_Hospital;
+                    if (!playerArrested)
+                        pBlip.Icon = BlipIcon.Building_Hospital;
+                    else
+                        pBlip.Icon = BlipIcon.Building_PoliceStation;
                     pBlip.Name = "Weapon Bribe";
                     pBlip.Display = eBlipDisplay.BLIP_DISPLAY_ARROW_AND_MAP;
                     pBlip.ShowOnlyWhenNear = true;
                 }
                 GET_GAME_TIMER(out fTimer);
                 //IVGame.ShowSubtitleMessage(Main.PlayerPos.ToString());
-                hasDied = false;
+                deathArrest = false;
             }
             if (canBribe && IS_SCREEN_FADED_IN())
             {
@@ -90,6 +103,8 @@ namespace MissionStuff.ivsdk
                     if (NativeControls.IsGameKeyPressed(0, GameKey.Action))
                         RestoreWeapons();
                 }
+                else if (IS_THIS_HELP_MESSAGE_BEING_DISPLAYED("TM_2_28"))
+                    CLEAR_HELP();
                 if (Main.gTimer > fTimer + bribeDuration)
                 {
                     REMOVE_BLIP(bribeBlip);
@@ -97,55 +112,17 @@ namespace MissionStuff.ivsdk
                 }
             }
         }
-        public static List<int> GetWeaponInventory(bool IncludeMelee)
-        {
-            List<int> inventory = new List<int>();
-
-            for (int i = 0; i <= 8; i++)
-            {
-                GET_CHAR_WEAPON_IN_SLOT(Main.PlayerPed.GetHandle(), i, out int weaponInSlot, out _, out _);
-                if (weaponInSlot == 0) continue;
-
-                var info = IVWeaponInfo.GetWeaponInfo((uint)weaponInSlot);
-                if (info == null) continue;
-
-                if (info.FireType != 0 || IncludeMelee)
-                {
-                    inventory.Add(weaponInSlot);
-                }
-            }
-
-            return inventory;
-        }
-        public static Dictionary<int, int> GetWeaponAmmoCounts()
-        {
-            Dictionary<int, int> ammoCounts = new Dictionary<int, int>();
-
-            foreach (int weapon in GetWeaponInventory(false))
-            {
-                GET_AMMO_IN_CHAR_WEAPON(Main.PlayerPed.GetHandle(), (int)weapon, out int ammo);
-                ammoCounts[weapon] = ammo;
-            }
-
-            return ammoCounts;
-        }
 
         private static void ShowBribeLocation()
         {
             if (!canBribe)
             {
                 BribeForWeaponsNotification(inventory);
-                canBribe = true;
+                if (fullPrice > 0)
+                    canBribe = true;
             }
-            else
-                DISPLAY_HELP_TEXT_THIS_FRAME("PLACEHOLDER_1", false);
-            //canBribe = true;
-
-            /*if (!IS_HELP_MESSAGE_BEING_DISPLAYED() && !canBribe)
-            {
-                BribeForWeaponsNotification(inventory);
-                canBribe = true;
-            }*/
+            else if (!IS_HELP_MESSAGE_BEING_DISPLAYED())
+                PRINT_HELP_FOREVER("TM_2_28");
         }
 
         private static void RestoreWeapons()
@@ -164,7 +141,7 @@ namespace MissionStuff.ivsdk
             IVPlayerInfoExtensions.RemoveMoney(Main.PlayerPed.PlayerInfo, fullPrice);
             fullPrice = 0;
 
-            if (IS_THIS_HELP_MESSAGE_BEING_DISPLAYED("PLACEHOLDER_1"))
+            if (IS_THIS_HELP_MESSAGE_BEING_DISPLAYED("TM_2_28"))
                 CLEAR_HELP();
 
             REMOVE_BLIP(bribeBlip);
@@ -190,17 +167,14 @@ namespace MissionStuff.ivsdk
 
             if (Main.PlayerPed.PlayerInfo.GetMoney() < fullPrice)
             {
-                message = $"You don't have enough money to bribe.";
+                message = "You don't have enough money to bribe.";
             }
             else
             {
-                message = $"Pay ~g~${fullPrice} ~s~bribe to get back your weapons?" +
-                $"~n~Press ~INPUT_PICKUP~ to pay.";
+                message = "Pay ~g~$" + fullPrice.ToString() + "~s~ bribe to get your weapons back? ~n~Press ~INPUT_PICKUP~ to pay.";
             }
 
-            IVText.TheIVText.ReplaceTextOfTextLabel("PLACEHOLDER_1", message);
-            //DISPLAY_HELP_TEXT_THIS_FRAME("PLACEHOLDER_1", false);
-            //PRINT_HELP("PLACEHOLDER_1");
+            IVText.TheIVText.ReplaceTextOfTextLabel("TM_2_28", message);
         }
         private static void CalculateBribePrice(List<int> inventory)
         {

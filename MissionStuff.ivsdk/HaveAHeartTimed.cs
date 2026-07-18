@@ -34,9 +34,9 @@ namespace MissionStuff.ivsdk
         private static int pVeh;
         public static void Init(SettingsFile settings)
         {
-            timeLimit = settings.GetUInteger("MAIN", "HAHTimeLimit", 120000);
-            newMessage = settings.GetValue("MAIN", "HAHMessage", "");
-            warnMessage = settings.GetValue("MAIN", "HAHWarning", "");
+            timeLimit = settings.GetUInteger("PACEMAKER", "TimeLimit", 120000);
+            newMessage = settings.GetValue("PACEMAKER", "Message", "");
+            warnMessage = settings.GetValue("PACEMAKER", "Warning", "");
         }
         public static void Tick()
         {
@@ -44,16 +44,19 @@ namespace MissionStuff.ivsdk
             {
                 if (IS_CHAR_SITTING_IN_ANY_CAR(Main.PlayerHandle))
                     GET_CAR_CHAR_IS_USING(Main.PlayerHandle, out pVeh);
+
                 if (!startTime && IS_THIS_PRINT_BEING_DISPLAYED("EB4X01", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) && !noDoctor)
                 {
-                    //IVText.TheIVText.ReplaceTextOfTextLabel("EB4X01", newMessage);
+                    CLEAR_BRIEF();
+                    IVText.TheIVText.ReplaceTextOfTextLabel("TM_2_29", newMessage);
+                    PRINT_NOW("TM_2_29", 5000, true);
                     GET_GAME_TIMER(out fTimer);
                     startTime = true;
                 }
                 else if (startTime)
                 {
-                    if (IS_THIS_PRINT_BEING_DISPLAYED("EB4X01", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0))
-                        IVGame.ShowSubtitleMessage(newMessage, 5000);
+                    //if (IS_THIS_PRINT_BEING_DISPLAYED("EB4X01", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0))
+                        //IVGame.ShowSubtitleMessage(newMessage, 5000);
                     if (LOCATE_CHAR_IN_CAR_3D(Main.PlayerHandle, 1223.573f, 694.0489f, 39.02f, 2.5f, 2.5f, 2.5f, false))
                         startTime = false;
                     //IVGame.ShowSubtitleMessage(gTimer.ToString() + "  " + (fTimer + timeLimit).ToString());

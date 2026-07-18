@@ -19,7 +19,7 @@ namespace MissionStuff.ivsdk
         private static readonly List<string> SCOList = new List<string>();
         public static void Init(SettingsFile settings)
         {
-            string SCOString = settings.GetValue("MAIN", "SCOsToLoad", "");
+            string SCOString = settings.GetValue("SCO LOADER", "SCOsToLoad", "");
 
             SCOList.Clear();
             foreach (string SCOName in SCOString.Split(','))
@@ -37,7 +37,10 @@ namespace MissionStuff.ivsdk
                     {
                         REQUEST_SCRIPT(SCOName);
                         if (HAS_SCRIPT_LOADED(SCOName))
+                        {
                             NativeGame.StartNewScript(SCOName, 1024);
+                            MARK_SCRIPT_AS_NO_LONGER_NEEDED(SCOName);
+                        }
                     }
                 }
             }

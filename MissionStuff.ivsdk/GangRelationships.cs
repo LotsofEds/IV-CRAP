@@ -36,10 +36,10 @@ namespace MissionStuff.ivsdk
         private static uint fTimer;
         public static void Init(SettingsFile settings)
         {
-            spawnGangs = settings.GetBoolean("MAIN", "SpawnRandomGangs", false);
-            timeToSpawn = settings.GetInteger("MAIN", "GangSpawnInterval", 15000);
-            spawnDist = settings.GetInteger("MAIN", "GangSpawnDistance", 30);
-            debug = settings.GetBoolean("MAIN", "SpawnGangsDebug", false);
+            spawnGangs = settings.GetBoolean("GANGS HATE NIKO", "SpawnRandomGangs", false);
+            timeToSpawn = settings.GetInteger("GANGS HATE NIKO", "GangSpawnInterval", 15000);
+            spawnDist = settings.GetInteger("GANGS HATE NIKO", "GangSpawnDistance", 30);
+            debug = settings.GetBoolean("GANGS HATE NIKO", "SpawnGangsDebug", false);
         }
         public static void UnInit()
         {

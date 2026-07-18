@@ -4,7 +4,9 @@ using IVSDKDotNet.Enums;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Data.SqlTypes;
 using System.IO;
+using System.Linq;
 using System.Numerics;
 using System.Runtime;
 using System.Windows.Forms;
@@ -20,57 +22,83 @@ namespace MissionStuff.ivsdk
         public static int PlayerHandle { get; set; }
         public static Vector3 PlayerPos { get; set; }
 
-        // IniShit
+        // IniBooleShit
         public static bool tripSkipEnable;
-        public static bool buffAlliesEnable;
+        public static bool buffedPedsEnable;
         public static bool noProofsEnable;
         public static bool moreWantedEnable;
-        public static bool buffEnemiesEnable;
         public static bool SCOLoadEnable;
         public static bool missionLockEnable;
         public static bool betterRaceEnable;
-        public static bool pillsEnable;
         public static bool gangsEnable;
         public static bool nikoSorrowEnable;
-        public static bool romanRevenueEnable;
         public static bool costlyDeathEnable;
         public static bool removeWeapEnable;
+        public static bool unrestEnable;
+        public static bool lowerStatEnable;
+        public static bool executeFixEnable;
+        public static bool reduceMoneyEnable;
+        public static bool policeBribeEnable;
+        public static bool copShotgunFixEnable;
+
+        // HangoutRewards
+        public static bool romanRevenueEnable;
+        public static bool pillsEnable;
+        public static bool brucieEnable;
+        public static bool carmenEnable;
+        public static bool kikiEnable;
+        public static bool alexEnable;
 
         // MissionShit
         public static bool timedToBlowEnable;
         public static bool heartTimeEnable;
         public static bool buoysAhoyEnable;
         public static bool escuelaOfTheSleepEnable;
-        public static bool removeEvidence;
+        public static bool removeEvidenceEnable;
+        public static bool hollandNightsEnable;
+        public static bool masterBaitEnable;
+        public static bool chaseExtendEnable;
+        public static bool explosiveTrapEnable;
 
         // SettingsFileShit
         public static SettingsFile mainSettings;
+        public static SettingsFile scoSettings;
+        public static SettingsFile savefileSettings;
         public static SettingsFile bribeSettings;
 
         // OtherShit
-        public static bool dontCrash = false;
         public static uint gTimer;
+        public static float frameTime;
         public Main()
         {
             Uninitialize += Main_Uninitialize;
             Initialized += Main_Initialized;
-            GameLoad += Main_GameLoad;
+            GameLoad += Main_GameLoad; ;
+            IngameStartup += Main_IngameStartup;
             KeyDown += Main_KeyDown;
             KeyUp += Main_KeyUp;
             Tick += Main_Tick;
         }
+
         private void Main_GameLoad(object sender, EventArgs e)
         {
+            if (brucieEnable)
+                BrucieCarService.GameLoad();
+        }
+        private void Main_IngameStartup(object sender, EventArgs e)
+        {
             if (tripSkipEnable)
-                TripSkip.GameLoad();
+                TripSkip.IngameStart();
             if (romanRevenueEnable)
-                GiveYouSharesNB.GameLoad();
+                GiveYouSharesNB.IngameStart();
             if (costlyDeathEnable)
-                DeathAndTaxes.GameLoad();
+                DeathAndTaxes.IngameStart();
             if (pillsEnable)
-                Pills.GameLoad();
+                Pills.IngameStart();
             if (removeWeapEnable)
-                VCSBuyBackWeapons.GameLoad();
+                VCSBuyBackWeapons.IngameStart();
+            if (unrestEnable)
+                UnrestfulSleep.IngameStart();
         }
         private void Main_Uninitialize(object sender, EventArgs e)
         {
@@ -81,6 +109,127 @@ namespace MissionStuff.ivsdk
             Pills.UnInit();
             VCSBuyBackWeapons.UnInit();
             NiksteinFiles.UnInit();
+            HollandNightsMelee.UnInit();
+            MasterBaiter.UnInit();
+            RealPoliceCorruption.UnInit();
+            ChaseExtender.UnInit();
+            ExplosiveNegotiation.UnInit();
+            ReducedMoney.UnInit();
+        }
+        private void Main_Initialized(object sender, EventArgs e)
+        {
+            mainSettings = Settings;
+            mainSettings.Load();
+            savefileSettings = new SettingsFile(string.Format("{0}\\IVSDKDotNet\\scripts\\MissionStuff\\SaveData.ini", IVGame.GameStartupPath));
+            savefileSettings.Load();
+            bribeSettings = new SettingsFile(string.Format("{0}\\IVSDKDotNet\\scripts\\MissionStuff\\BribeSettings.ini", IVGame.GameStartupPath));
+            bribeSettings.Load();
+            scoSettings = new SettingsFile(string.Format("{0}\\IVSDKDotNet\\scripts\\MissionStuff\\SCOSettings.ini", IVGame.GameStartupPath));
+            scoSettings.Load();
+
+            Init(Settings);
+
+            if (tripSkipEnable)
+                TripSkip.Init(Settings);
+            if (buffedPedsEnable)
+                BuffedPeds.Init(Settings);
+            if (noProofsEnable)
+                RemoveProofs.Init(Settings);
+            if (moreWantedEnable)
+                WantedStars.Init(Settings);
+            if (SCOLoadEnable)
+                SCOLoader.Init(Settings);
+            if (missionLockEnable)
+                ProgressLock.Init(Settings);
+            if (betterRaceEnable)
+                BetterRaceAI.Init(Settings);
+            if (gangsEnable)
+                GangRelationships.Init(Settings);
+            if (nikoSorrowEnable)
+                BrokeAndOnTheRun.Init(Settings);
+            if (costlyDeathEnable)
+                DeathAndTaxes.Init(Settings);
+            if (removeWeapEnable)
+                VCSBuyBackWeapons.Init(Settings);
+            if (lowerStatEnable)
+                RelationshipAdjust.Init(Settings);
+            if (executeFixEnable)
+                ExecutionFix.Init(Settings);
+            if (reduceMoneyEnable)
+                ReducedMoney.Init(Settings);
+            if (policeBribeEnable)
+                RealPoliceCorruption.Init(Settings);
+
+            if (romanRevenueEnable)
+                GiveYouSharesNB.Init(Settings);
+            if (pillsEnable)
+                Pills.Init(Settings);
+            if (brucieEnable)
+                BrucieCarService.Init(Settings);
+            if (carmenEnable)
+                CarmenAbility.Init(Settings);
+            if (kikiEnable)
+                KikiAbility.Init(Settings);
+            if (alexEnable)
+                AlexAbility.Init(Settings);
+
+            if (timedToBlowEnable)
+                TimedToBlow.Init(Settings);
+            if (heartTimeEnable)
+                HaveAHeartTimed.Init(Settings);
+            if (buoysAhoyEnable)
+                BuoysAhoy.Init(Settings);
+            if (escuelaOfTheSleepEnable)
+                EscuelaOfTheSleep.Init();
+            if (removeEvidenceEnable)
+                NiksteinFiles.Init();
+            if (hollandNightsEnable)
+                HollandNightsMelee.Init(Settings);
+            if (masterBaitEnable)
+                MasterBaiter.Init(Settings);
+            if (chaseExtendEnable)
+                ChaseExtender.Init(Settings);
+            if (explosiveTrapEnable)
+                ExplosiveNegotiation.Init(Settings);
+
+            //GetGlobals.Init();
+        }
+        private static void Init(SettingsFile settings)
+        {
+            tripSkipEnable = settings.GetBoolean("TRIP SKIP", "Enable", false);
+            buffedPedsEnable = settings.GetBoolean("TWEAKED MISSION PEDS", "Enable", false);
+            noProofsEnable = settings.GetBoolean("REMOVE PED PROOFS", "Enable", false);
+            moreWantedEnable = settings.GetBoolean("MORE WANTED STARS", "Enable", false);
+            SCOLoadEnable = settings.GetBoolean("SCO LOADER", "Enable", false);
+            missionLockEnable = settings.GetBoolean("MISSION LOCKS", "Enable", false);
+            betterRaceEnable = settings.GetBoolean("BETTER RACE AI", "Enable", false);
+            gangsEnable = settings.GetBoolean("GANGS HATE NIKO", "Enable", false);
+            nikoSorrowEnable = settings.GetBoolean("NIKO'S SORROW", "Enable", false);
+            costlyDeathEnable = settings.GetBoolean("REALISTIC U.S. HEALTHCARE", "Enable", false);
+            removeWeapEnable = settings.GetBoolean("REMOVE WEAPONS ON DEATH", "Enable", false);
+            unrestEnable = settings.GetBoolean("RESTLESS SLEEP", "Enable", false);
+            lowerStatEnable = settings.GetBoolean("LOWER RELATIONSHIP", "Enable", false);
+            executeFixEnable = settings.GetBoolean("EXECUTION COMPATIBILITY", "Enable", false);
+            reduceMoneyEnable = settings.GetBoolean("REDUCED REWARDS", "Enable", false);
+            policeBribeEnable = settings.GetBoolean("ACTUAL BRIBES", "Enable", false);
+            copShotgunFixEnable = settings.GetBoolean("COP CAR SHOTGUN FIX", "Enable", false);
+
+            romanRevenueEnable = settings.GetBoolean("I'LL GIVE YOU SHARES, NB", "Enable", false);
+            pillsEnable = settings.GetBoolean("PACKIE'S PILLS", "Enable", false);
+            brucieEnable = settings.GetBoolean("NOW *THIS* IS HOW WE ROLL", "Enable", false);
+            carmenEnable = settings.GetBoolean("CARING CARMEN", "Enable", false);
+            kikiEnable = settings.GetBoolean("BETTER CALL KIKI", "Enable", false);
+            alexEnable = settings.GetBoolean("LIBERATED MAN", "Enable", false);
+
+            timedToBlowEnable = settings.GetBoolean("TIMED TO BLOW", "Enable", false);
+            heartTimeEnable = settings.GetBoolean("PACEMAKER", "Enable", false);
+            buoysAhoyEnable = settings.GetBoolean("ALIVE IF NOT EXACTLY WELL", "Enable", false);
+            escuelaOfTheSleepEnable = settings.GetBoolean("ESCUELA OF THE SLEEP", "Enable", false);
+            removeEvidenceEnable = settings.GetBoolean("YOU'RE UNDERCOVER, AS IN DEEP", "Enable", false);
+            hollandNightsEnable = settings.GetBoolean("HOLLAND HALLWAY HEAD KNOCKING", "Enable", false);
+            masterBaitEnable = settings.GetBoolean("MASTER BAITER", "Enable", false);
+            chaseExtendEnable = settings.GetBoolean("B-BUT SCRIPTED CHASES BAAAD", "Enable", false);
+            explosiveTrapEnable = settings.GetBoolean("EXPLOSIVE NEGOTIATION", "Enable", false);
         }
 
         private void Main_KeyDown(object sender, KeyEventArgs e)
@@ -106,82 +255,10 @@ namespace MissionStuff.ivsdk
                 Pills.KeyUp();
         }
 
-        private void Main_Initialized(object sender, EventArgs e)
-        {
-            mainSettings = new SettingsFile(string.Format("{0}\\IVSDKDotNet\\scripts\\MissionStuff.ini", IVGame.GameStartupPath));
-            mainSettings.Load();
-            bribeSettings = new SettingsFile(string.Format("{0}\\IVSDKDotNet\\scripts\\MissionStuff\\BribeSettings.ini", IVGame.GameStartupPath));
-            bribeSettings.Load();
-            Init(Settings);
-            if (tripSkipEnable)
-                TripSkip.Init(Settings);
-            if (buffAlliesEnable)
-                ArmoredAllies.Init(Settings);
-            if (buffEnemiesEnable)
-                BuffedEnemies.Init(Settings);
-            if (noProofsEnable)
-                RemoveProofs.Init(Settings);
-            if (moreWantedEnable)
-                WantedStars.Init(Settings);
-            if (SCOLoadEnable)
-                SCOLoader.Init(Settings);
-            if (missionLockEnable)
-                ProgressLock.Init(Settings);
-            if (missionLockEnable)
-                ProgressLock.Init(Settings);
-            if (betterRaceEnable)
-                BetterRaceAI.Init(Settings);
-            if (pillsEnable)
-                Pills.Init(Settings);
-            if (gangsEnable)
-                GangRelationships.Init(Settings);
-            if (nikoSorrowEnable)
-                BrokeAndOnTheRun.Init(Settings);
-            if (romanRevenueEnable)
-                GiveYouSharesNB.Init(Settings);
-            if (costlyDeathEnable)
-                DeathAndTaxes.Init(Settings);
-            if (removeWeapEnable)
-                VCSBuyBackWeapons.Init(Settings);
-
-            if (timedToBlowEnable)
-                TimedToBlow.Init(Settings);
-            if (heartTimeEnable)
-                HaveAHeartTimed.Init(Settings);
-            if (buoysAhoyEnable)
-                BuoysAhoy.Init(Settings);
-            if (escuelaOfTheSleepEnable)
-                EscuelaOfTheSleep.Init();
-            if (removeEvidence)
-                NiksteinFiles.Init();
-        }
         public static bool InitialChecks()
         {
             if (IS_PAUSE_MENU_ACTIVE()) return false;
             return true;
-        }
-        private static void Init(SettingsFile settings)
-        {
-            tripSkipEnable = settings.GetBoolean("MAIN", "TripSkip", false);
-            buffAlliesEnable = settings.GetBoolean("MAIN", "BuffAllies", false);
-            buffEnemiesEnable = settings.GetBoolean("MAIN", "BuffEnemies", false);
-            noProofsEnable = settings.GetBoolean("MAIN", "RemoveEnemyProofs", false);
-            moreWantedEnable = settings.GetBoolean("MAIN", "MoreWantedStars", false);
-            SCOLoadEnable = settings.GetBoolean("MAIN", "SCOLoader", false);
-            missionLockEnable = settings.GetBoolean("MAIN", "MissionLocks", false);
-            betterRaceEnable = settings.GetBoolean("MAIN", "BetterRaceAI", false);
-            pillsEnable = settings.GetBoolean("MAIN", "PackiePills", false);
-            gangsEnable = settings.GetBoolean("MAIN", "GangsHateNiko", false);
-            nikoSorrowEnable = settings.GetBoolean("MAIN", "NikosSorrow", false);
-            romanRevenueEnable = settings.GetBoolean("MAIN", "BellicEntShares", false);
-            costlyDeathEnable = settings.GetBoolean("MAIN", "DeadAndBroke", false);
-            removeWeapEnable = settings.GetBoolean("MAIN", "RemoveWeaponsOnDeath", false);
-
-            timedToBlowEnable = settings.GetBoolean("MAIN", "TimedToBlow", false);
-            heartTimeEnable = settings.GetBoolean("MAIN", "Pacemaker", false);
-            buoysAhoyEnable = settings.GetBoolean("MAIN", "BuoysAhoyRevamp", false);
-            escuelaOfTheSleepEnable = settings.GetBoolean("MAIN", "EscuelaOfTheSleep", false);
-            removeEvidence = settings.GetBoolean("MAIN", "YoureUndercoverAsInDeep", false);
         }
         private void Main_Tick(object sender, EventArgs e)
         {
@@ -190,16 +267,20 @@ namespace MissionStuff.ivsdk
             PlayerIndex = (int)GET_PLAYER_ID();
             PlayerPos = PlayerPed.Matrix.Pos;
 
-            if (!InitialChecks())
-                return;
-
             if (PlayerPed == null)
                 return;
 
+            if (!InitialChecks())
+                return;
+
             GET_GAME_TIMER(out gTimer);
+            GET_FRAME_TIME(out frameTime);
 
             PedHelper.GrabAllPeds();
             VehHelper.GrabAllVehicles();
+
+            if (hollandNightsEnable)
+                HollandNightsMelee.Tick();
 
             if (tripSkipEnable)
                 TripSkip.Tick();
@@ -207,28 +288,51 @@ namespace MissionStuff.ivsdk
                 RemoveProofs.Tick();
             if (moreWantedEnable)
                 WantedStars.Tick();
-            if (buffAlliesEnable)
-                ArmoredAllies.Tick();
-            if (buffEnemiesEnable)
-                BuffedEnemies.Tick();
+            if (buffedPedsEnable)
+                BuffedPeds.Tick();
             if (missionLockEnable)
                 ProgressLock.Tick();
             if (SCOLoadEnable)
                 SCOLoader.Tick();
             if (betterRaceEnable)
                 BetterRaceAI.Tick();
-            if (pillsEnable)
-                Pills.Tick();
             if (gangsEnable)
                 GangRelationships.Tick();
             if (nikoSorrowEnable)
                 BrokeAndOnTheRun.Tick();
-            if (romanRevenueEnable)
-                GiveYouSharesNB.Tick();
             if (costlyDeathEnable)
                 DeathAndTaxes.Tick();
             if (removeWeapEnable)
                 VCSBuyBackWeapons.Tick();
+            if (unrestEnable)
+                UnrestfulSleep.Tick();
+            if (lowerStatEnable)
+                RelationshipAdjust.Tick();
+            if (executeFixEnable)
+                ExecutionFix.Tick();
+            if (reduceMoneyEnable)
+                ReducedMoney.Tick();
+            if (policeBribeEnable)
+                RealPoliceCorruption.Tick();
+            if (copShotgunFixEnable)
+                CopShotgunFix.Tick();
+
+            if (romanRevenueEnable)
+                GiveYouSharesNB.Tick();
+            if (pillsEnable)
+                Pills.Tick();
+            if (brucieEnable)
+                BrucieCarService.Tick();
+            if (carmenEnable)
+                CarmenAbility.Tick();
+            if (kikiEnable)
+                KikiAbility.Tick();
+            if (alexEnable)
+                AlexAbility.Tick();
+
+            //GoodEnding.Tick();
+
+            //GetGlobals.Tick();
 
             //SET_CHAR_PROOFS(Main.PlayerHandle, false, false, false, false, false);
 
@@ -240,8 +344,54 @@ namespace MissionStuff.ivsdk
                 BuoysAhoy.Tick();
             if (escuelaOfTheSleepEnable)
                 EscuelaOfTheSleep.Tick();
-            if (removeEvidence)
+            if (removeEvidenceEnable)
                 NiksteinFiles.Tick();
+            if (masterBaitEnable)
+                MasterBaiter.Tick();
+            if (chaseExtendEnable)
+                ChaseExtender.Tick();
+            if (explosiveTrapEnable)
+                ExplosiveNegotiation.Tick();
+
+            if (DID_SAVE_COMPLETE_SUCCESSFULLY() && GET_IS_DISPLAYINGSAVEMESSAGE())
+            {
+                Pills.SavePillCount(savefileSettings);
+                UnrestfulSleep.SaveData();
+                GiveYouSharesNB.SaveMoney(savefileSettings);
+                DeathAndTaxes.SetSaveData(savefileSettings);
+            }
+        }
+        public static List<int> GetWeaponInventory(bool IncludeMelee)
+        {
+            List<int> inventory = new List<int>();
+
+            for (int i = 0; i <= 8; i++)
+            {
+                GET_CHAR_WEAPON_IN_SLOT(Main.PlayerPed.GetHandle(), i, out int weaponInSlot, out _, out _);
+                if (weaponInSlot == 0) continue;
+
+                var info = IVWeaponInfo.GetWeaponInfo((uint)weaponInSlot);
+                if (info == null) continue;
+
+                if (info.FireType != 0 || IncludeMelee)
+                {
+                    inventory.Add(weaponInSlot);
+                }
+            }
+
+            return inventory;
+        }
+        public static Dictionary<int, int> GetWeaponAmmoCounts()
+        {
+            Dictionary<int, int> ammoCounts = new Dictionary<int, int>();
+
+            foreach (int weapon in GetWeaponInventory(false))
+            {
+                GET_AMMO_IN_CHAR_WEAPON(Main.PlayerPed.GetHandle(), (int)weapon, out int ammo);
+                ammoCounts[weapon] = ammo;
+            }
+
+            return ammoCounts;
         }
     }
 }
