@@ -1,2 +1,2 @@
-# IVMissionStuff
-A configurable Grand Theft Auto IV script mod that adds extra mission options.
+# IV - Campaign Revision and Adjustment Project (CRAP)
+A highly customizable IV-SDK.NET script mod that enhances and refreshes the campaign experience of GTA IV by revamping key gameplay features and mechanics, making some changes to mission objectives and design, tweaking friendship rewards and other side-activities, and making very minor story/lore adjustments or implications that aim to fit with the original game's design, theme, and narrative.
