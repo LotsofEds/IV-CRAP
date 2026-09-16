@@ -13,9 +13,9 @@ namespace MissionStuff
     {
         public class MenuItem
         {
-            public virtual string Label { get; }
+            public virtual string Label { get; set; }
             public Action OnSelect { get; }
-            public Func<string> Description { get; }
+            public Func<string> Description { get; set; }
             public Action OnLeft { get; }
             public Action OnRight { get; }
 
@@ -40,7 +40,6 @@ namespace MissionStuff
         }
 
         private bool _active;
-        private bool _keyPressed;
         private static readonly Stack<SimpleMenu> _menuStack = new Stack<SimpleMenu>();
         public Action OnHide { get; set; }
         public SimpleMenu(string title)
@@ -48,9 +47,9 @@ namespace MissionStuff
             _title = title;
         }
 
-        public void AddItem(Func<string> label, Action onSelect, Func<string> description = null, Action onLeft = null, Action onRight = null)
+        public void AddItem(string label, Action onSelect, Func<string> description = null, Action onLeft = null, Action onRight = null)
         {
-            _items.Add(new MenuItemWithDynamicLabel(label, onSelect, description, onLeft, onRight));
+            _items.Add(new MenuItem(label, onSelect, description, onLeft, onRight));
         }
 
         private class MenuItemWithDynamicLabel : MenuItem
@@ -114,57 +113,52 @@ namespace MissionStuff
             IVPhoneInfo.ThePhoneInfo.DisablePhone = 1;
 
             // Navigation
-            if (!_keyPressed || !IS_PLAYER_CONTROL_ON(Main.PlayerIndex))
+            if (IS_CONTROL_JUST_PRESSED(0, (int)GameKey.NavUp) && !Main.keyPressed)
             {
-                if (IS_CONTROL_JUST_PRESSED(0, (int)GameKey.NavUp))
-                {
-                    _selectedIndex = (_selectedIndex - 1 + _items.Count) % _items.Count;
-                    PLAY_SOUND_FRONTEND(-1, "FRONTEND_MENU_TOGGLE_MT");
-                    _keyPressed = true;
-                }
-                else if (IS_CONTROL_JUST_PRESSED(0, (int)GameKey.NavDown))
-                {
-                    _selectedIndex = (_selectedIndex + 1) % _items.Count;
-                    PLAY_SOUND_FRONTEND(-1, "FRONTEND_MENU_TOGGLE_MT");
-                    _keyPressed = true;
-                }
-                else if (IS_CONTROL_JUST_PRESSED(0, (int)GameKey.NavEnter))
-                {
-                    _items[_selectedIndex].OnSelect?.Invoke();
-                    PLAY_SOUND_FRONTEND(-1, "FRONTEND_MENU_TOGGLE_ON");
-                    if (!_active) return;
-                    _keyPressed = true;
-                }
-                else if (IS_CONTROL_JUST_PRESSED(0, (int)GameKey.NavBack) || !IS_PLAYER_CONTROL_ON(Main.PlayerIndex))
-                {
-                    PLAY_SOUND_FRONTEND(-1, "FRONTEND_MENU_BACK");
-                    _keyPressed = true;
-                    Hide();
-                    return;
-                }
-                else if (IS_CONTROL_JUST_PRESSED(0, (int)GameKey.NavLeft))
-                {
-                    var onLeft = _items[_selectedIndex].OnLeft;
-                    if (onLeft != null)
-                    {
-                        onLeft.Invoke();
-                        PLAY_SOUND_FRONTEND(-1, "FRONTEND_MENU_TOGGLE_MT");
-                    }
-                    _keyPressed = true;
-                }
-                else if (IS_CONTROL_JUST_PRESSED(0, (int)GameKey.NavRight))
-                {
-                    var onRight = _items[_selectedIndex].OnRight;
-                    if (onRight != null)
-                    {
-                        onRight.Invoke();
-                        PLAY_SOUND_FRONTEND(-1, "FRONTEND_MENU_TOGGLE_MT");
-                    }
-                    _keyPressed = true;
-                }
+                _selectedIndex = (_selectedIndex - 1 + _items.Count) % _items.Count;
+                PLAY_SOUND_FRONTEND(-1, "FRONTEND_MENU_TOGGLE_MT");
+                Main.keyPressed = true;
             }
-            else
-                _keyPressed = false;
+            else if (IS_CONTROL_JUST_PRESSED(0, (int)GameKey.NavDown) && !Main.keyPressed)
+            {
+                _selectedIndex = (_selectedIndex + 1) % _items.Count;
+                PLAY_SOUND_FRONTEND(-1, "FRONTEND_MENU_TOGGLE_MT");
+                Main.keyPressed = true;
+            }
+            else if (IS_CONTROL_JUST_PRESSED(0, (int)GameKey.NavEnter) && !Main.keyPressed)
+            {
+                _items[_selectedIndex].OnSelect?.Invoke();
+                PLAY_SOUND_FRONTEND(-1, "FRONTEND_MENU_TOGGLE_ON");
+                Main.keyPressed = true;
+                if (!_active) return;
+            }
+            else if ((IS_CONTROL_JUST_PRESSED(0, (int)GameKey.NavBack) || !IS_PLAYER_CONTROL_ON(Main.PlayerIndex)) && !Main.keyPressed)
+            {
+                PLAY_SOUND_FRONTEND(-1, "FRONTEND_MENU_BACK");
+                Main.keyPressed = true;
+                Hide();
+                return;
+            }
+            else if (IS_CONTROL_JUST_PRESSED(0, (int)GameKey.NavLeft) && !Main.keyPressed)
+            {
+                var onLeft = _items[_selectedIndex].OnLeft;
+                if (onLeft != null)
+                {
+                    onLeft.Invoke();
+                    PLAY_SOUND_FRONTEND(-1, "FRONTEND_MENU_TOGGLE_MT");
+                }
+                Main.keyPressed = true;
+            }
+            else if (IS_CONTROL_JUST_PRESSED(0, (int)GameKey.NavRight) && !Main.keyPressed)
+            {
+                var onRight = _items[_selectedIndex].OnRight;
+                if (onRight != null)
+                {
+                    onRight.Invoke();
+                    PLAY_SOUND_FRONTEND(-1, "FRONTEND_MENU_TOGGLE_MT");
+                }
+                Main.keyPressed = true;
+            }
             
             string menuText = $"~n~~h~~w~{_title}~s~~m~~n~";
             for (int i = 0; i < _items.Count; i++)

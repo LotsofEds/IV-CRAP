@@ -19,7 +19,7 @@ namespace MissionStuff.ivsdk
         // IniShit
         private static uint timeLimit;
         private static string newMessage;
-        private static string warnMessage;
+        private static string carToSpawn;
         //private static string startGXT;
         //private static string stopGXT;
         //private static string textToReplace;
@@ -49,7 +49,7 @@ namespace MissionStuff.ivsdk
         {
             timeLimit = settings.GetUInteger("TIMED TO BLOW", "TimeLimit", 180000);
             newMessage = settings.GetValue("TIMED TO BLOW", "Message", "");
-            warnMessage = settings.GetValue("TIMED TO BLOW", "Warning", "");
+            carToSpawn = settings.GetValue("TIMED TO BLOW", "CarToSpawn", "rebla");
         }
         public static void UnInit()
         {
@@ -82,16 +82,23 @@ namespace MissionStuff.ivsdk
                         startTime = false;
                     //IVGame.ShowSubtitleMessage(gTimer.ToString() + "  " + (fTimer + 20000).ToString());
 
-                    if (!HAS_MODEL_LOADED(GET_HASH_KEY("rebla")))
-                        REQUEST_MODEL(GET_HASH_KEY("rebla"));
-
+                    if (!IS_MODEL_IN_CDIMAGE(GET_HASH_KEY(carToSpawn)) || !IS_THIS_MODEL_A_CAR((uint)GET_HASH_KEY(carToSpawn)))
+                        carToSpawn = "rebla";
+                    else if (!HAS_MODEL_LOADED(GET_HASH_KEY(carToSpawn)))
+                    {
+                        REQUEST_MODEL(GET_HASH_KEY(carToSpawn));
+                        return;
+                    }
                     if (!HAS_MODEL_LOADED(GET_HASH_KEY("m_m_gru2_hi_01")))
+                    {
                         REQUEST_MODEL(GET_HASH_KEY("m_m_gru2_hi_01"));
+                        return;
+                    }
 
                     if (Main.gTimer >= fTimer + timeLimit)
                     {
                         IVGame.ShowSubtitleMessage("~s~Some ~r~workers~s~ have arrived to guard the place.", 4000);
-                        CREATE_CAR(GET_HASH_KEY("rebla"), 618.162f, 1481.202f, 12.465f, out pVeh, true);
+                        CREATE_CAR(GET_HASH_KEY(carToSpawn), 618.162f, 1481.202f, 12.465f, out pVeh, true);
                         /*CREATE_CHAR_INSIDE_CAR(pVeh, (int)ePedType.PED_TYPE_GANG_RUSSIAN_GANG, (uint)GET_HASH_KEY("m_m_gru2_hi_01"), out int pPed1);
                         CREATE_CHAR_AS_PASSENGER(pVeh, (int)ePedType.PED_TYPE_GANG_RUSSIAN_GANG, (uint)GET_HASH_KEY("m_m_gru2_hi_01"), 0, out int pPed2);
                         CREATE_CHAR_AS_PASSENGER(pVeh, (int)ePedType.PED_TYPE_GANG_RUSSIAN_GANG, (uint)GET_HASH_KEY("m_m_gru2_hi_01"), 1, out int pPed3);
@@ -125,9 +132,8 @@ namespace MissionStuff.ivsdk
 
                     if (Main.gTimer >= fTimer + (timeLimit - 30000) && !hasWarned)
                     {
-                        IVText.TheIVText.ReplaceTextOfTextLabel("TM_2_29", warnMessage);
+                        IVText.TheIVText.ReplaceTextOfTextLabel("TM_2_29", "~s~Only ~y~15 minutes~s~left, get to the ~y~garage~s~quickly.");
                         PRINT_HELP("TM_2_29");
-                        //IVGame.ShowSubtitleMessage(warnMessage, 4000);
                         hasWarned = true;
                     }
                 }

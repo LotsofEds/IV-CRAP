@@ -3,6 +3,7 @@ using CCL.GTAIV;
 using IVSDKDotNet;
 using IVSDKDotNet.Enums;
 using IVSDKDotNet.Native;
+using MissionStuff.ivsdk.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlTypes;
@@ -57,8 +58,8 @@ namespace MissionStuff.ivsdk
         {
             if ((IS_CHAR_DEAD(Main.PlayerHandle) || HAS_CHAR_BEEN_ARRESTED(Main.PlayerHandle)) && !deathArrest)
             {
-                inventory = Main.GetWeaponInventory(true);
-                ammo = Main.GetWeaponAmmoCounts();
+                inventory = GenHelp.GetWeaponInventory(true);
+                ammo = GenHelp.GetWeaponAmmoCounts();
 
                 if (IS_CHAR_DEAD(Main.PlayerHandle))
                 {

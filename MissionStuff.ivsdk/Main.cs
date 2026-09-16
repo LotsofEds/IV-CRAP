@@ -5,6 +5,8 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data.SqlTypes;
+using System.Drawing;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Numerics;
@@ -42,6 +44,11 @@ namespace MissionStuff.ivsdk
         public static bool copShotgunFixEnable;
         public static bool recessionEnable;
         public static bool fastAllyEnable;
+        public static bool thirstHungerEnable;
+        public static bool foodMenuEnable;
+        public static bool sleepEnable;
+        public static bool tutorialEnable;
+        public static bool ragingBullEnable;
 
         // HangoutRewards
         public static bool romanRevenueEnable;
@@ -76,6 +83,24 @@ namespace MissionStuff.ivsdk
         public static uint mTimer;
         public static float frameTime;
         internal static SimpleMenu actionMenu;
+        public static bool keyPressed;
+
+        // RoleplayShit
+        public static int hungerMeter;
+        public static int thirstMeter;
+        public static int sleepMeter;
+        public static int pillMeter;
+
+        public static uint thirstTimer;
+        public static uint hungerTimer;
+        public static uint sleepTimer;
+        public static uint pillTimer;
+        public static uint healthTimer;
+
+        public static uint camTimer;
+        public static float camShake;
+
+        private static bool isSleeping;
         public Main()
         {
             Uninitialize += Main_Uninitialize;
@@ -106,6 +131,12 @@ namespace MissionStuff.ivsdk
                 UnrestfulSleep.IngameStart();
             if (reduceMoneyEnable)
                 ReducedMoney.IngameStart();
+            if (thirstHungerEnable)
+                ThirstHunger.IngameStart();
+            if (foodMenuEnable)
+                FoodMenu.IngameStart();
+            if (sleepEnable)
+                Insomnia.IngameStart();
         }
         private void Main_Uninitialize(object sender, EventArgs e)
         {
@@ -122,6 +153,9 @@ namespace MissionStuff.ivsdk
             ChaseExtender.UnInit();
             ExplosiveNegotiation.UnInit();
             ReducedMoney.UnInit();
+            TutorialThings.UnInit();
+            FoodMenu.UnInit();
+            RagingBull.UnInit();
         }
         private void Main_Initialized(object sender, EventArgs e)
         {
@@ -172,6 +206,12 @@ namespace MissionStuff.ivsdk
                 CopShotgunFix.Init(Settings);
             if (fastAllyEnable)
                 FasterAllies.Init(Settings);
+            if (thirstHungerEnable)
+                ThirstHunger.Init(Settings);
+            if (foodMenuEnable)
+                FoodMenu.Init(Settings);
+            if (sleepEnable)
+                Insomnia.Init(Settings);
 
             if (romanRevenueEnable)
                 GiveYouSharesNB.Init(Settings);
@@ -204,7 +244,8 @@ namespace MissionStuff.ivsdk
                 ChaseExtender.Init(Settings);
             if (explosiveTrapEnable)
                 ExplosiveNegotiation.Init(Settings);
-
+            if (ragingBullEnable)
+                RagingBull.Init(Settings);
             //GetGlobals.Init();
         }
         private static void Init(SettingsFile settings)
@@ -220,7 +261,7 @@ namespace MissionStuff.ivsdk
             nikoSorrowEnable = settings.GetBoolean("NIKO'S SORROW", "Enable", false);
             costlyDeathEnable = settings.GetBoolean("REALISTIC U.S. HEALTHCARE", "Enable", false);
             removeWeapEnable = settings.GetBoolean("REMOVE WEAPONS ON DEATH", "Enable", false);
-            unrestEnable = settings.GetBoolean("RESTLESS SLEEP", "Enable", false);
+            unrestEnable = settings.GetBoolean("RESTLESSNESS", "Enable", false);
             lowerStatEnable = settings.GetBoolean("LOWER RELATIONSHIP", "Enable", false);
             executeFixEnable = settings.GetBoolean("EXECUTION COMPATIBILITY", "Enable", false);
             reduceMoneyEnable = settings.GetBoolean("REDUCED REWARDS", "Enable", false);
@@ -228,9 +269,14 @@ namespace MissionStuff.ivsdk
             copShotgunFixEnable = settings.GetBoolean("COP CAR SHOTGUN FIX", "Enable", false);
             recessionEnable = settings.GetBoolean("2008 RECESSION SIMULATOR", "Enable", false);
             fastAllyEnable = settings.GetBoolean("KEEP UP, MOTHERFUCKER", "Enable", false);
+            thirstHungerEnable = settings.GetBoolean("THIRST AND HUNGER", "Enable", false);
+            foodMenuEnable = settings.GetBoolean("FOOD MENU", "Enable", false);
+            sleepEnable = settings.GetBoolean("GO GET SOME SLEEP", "Enable", false);
+            tutorialEnable = settings.GetBoolean("TUTORIAL SHIT", "Enable", false);
 
             romanRevenueEnable = settings.GetBoolean("I'LL GIVE YOU SHARES, NB", "Enable", false);
-            pillsEnable = settings.GetBoolean("PACKIE'S PILLS", "Enable", false);
+            pillsEnable = settings.GetBoolean("PILLS", "Enable", false);
+            //pillsEnable = settings.GetBoolean("PACKIE'S PILLS", "Enable", false);
             brucieEnable = settings.GetBoolean("NOW *THIS* IS HOW WE ROLL", "Enable", false);
             carmenEnable = settings.GetBoolean("CARING CARMEN", "Enable", false);
             kikiEnable = settings.GetBoolean("BETTER CALL KIKI", "Enable", false);
@@ -245,6 +291,7 @@ namespace MissionStuff.ivsdk
             masterBaitEnable = settings.GetBoolean("MASTER BAITER", "Enable", false);
             chaseExtendEnable = settings.GetBoolean("B-BUT SCRIPTED CHASES BAAAD", "Enable", false);
             explosiveTrapEnable = settings.GetBoolean("EXPLOSIVE NEGOTIATION", "Enable", false);
+            ragingBullEnable = settings.GetBoolean("RAGING BULL", "Enable", false);
 
             menuKey = settings.GetInteger("MAIN", "MenuKey", 0);
         }
@@ -271,6 +318,7 @@ namespace MissionStuff.ivsdk
 
             PedHelper.GrabAllPeds();
             VehHelper.GrabAllVehicles();
+            ObjectHelper.GrabAllObjs();
 
             ProcessMenu();
 
@@ -313,6 +361,15 @@ namespace MissionStuff.ivsdk
                 CopShotgunFix.Tick();
             if (fastAllyEnable)
                 FasterAllies.Tick();
+            if (thirstHungerEnable)
+                ThirstHunger.Tick();
+            if (foodMenuEnable)
+                FoodMenu.Tick();
+            if (sleepEnable)
+                Insomnia.Tick();
+            if (tutorialEnable)
+                TutorialThings.Tick();
+            StatUI.Tick();
 
             if (romanRevenueEnable)
                 GiveYouSharesNB.Tick();
@@ -349,14 +406,46 @@ namespace MissionStuff.ivsdk
                 ChaseExtender.Tick();
             if (explosiveTrapEnable)
                 ExplosiveNegotiation.Tick();
+            if (ragingBullEnable)
+                RagingBull.Tick();
 
+            ProcessSleep();
+            // All functions that write something to the savefile go here.
             if (DID_SAVE_COMPLETE_SUCCESSFULLY() && GET_IS_DISPLAYINGSAVEMESSAGE())
             {
-                Pills.SavePillCount(savefileSettings);
-                UnrestfulSleep.SaveData();
-                GiveYouSharesNB.SaveMoney(savefileSettings);
-                DeathAndTaxes.SetSaveData(savefileSettings);
+                if (pillsEnable)
+                    Pills.SavePillCount(savefileSettings);
+                //Pills.SavePillCount(savefileSettings);
+                if (unrestEnable)
+                    UnrestfulSleep.SaveData();
+                if (romanRevenueEnable)
+                    GiveYouSharesNB.SaveMoney(savefileSettings);
+                if (costlyDeathEnable)
+                    DeathAndTaxes.SetSaveData(savefileSettings);
+                if (thirstHungerEnable)
+                    ThirstHunger.SaveThirstAndHunger(savefileSettings);
+                if (sleepEnable)
+                    Insomnia.SaveSleepAmount(savefileSettings);
             }
+            // This is to make the fucking simple menu work properly.
+            if (IS_CONTROL_JUST_PRESSED(0, (int)GameKey.NavUp) || IS_CONTROL_JUST_PRESSED(0, (int)GameKey.NavDown)
+                || IS_CONTROL_JUST_PRESSED(0, (int)GameKey.NavLeft) || IS_CONTROL_JUST_PRESSED(0, (int)GameKey.NavRight)
+                || IS_CONTROL_JUST_PRESSED(0, (int)GameKey.NavEnter) || IS_CONTROL_JUST_PRESSED(0, (int)GameKey.NavBack))
+                keyPressed = true;
+            else
+                keyPressed = false;
+        }
+
+        private static void ProcessSleep()
+        {
+            if (!isSleeping && !IS_SCREEN_FADING_OUT() && (IS_CHAR_PLAYING_ANIM(Main.PlayerHandle, "amb@savegame", "lie_on_bed_l") || IS_CHAR_PLAYING_ANIM(Main.PlayerHandle, "amb@savegame", "lie_on_bed_r")))
+            {
+                ThirstHunger.Sleep();
+                Main.pillMeter = 0;
+                isSleeping = true;
+            }
+            else if (!IS_CHAR_PLAYING_ANIM(Main.PlayerHandle, "amb@savegame", "lie_on_bed_l") && !IS_CHAR_PLAYING_ANIM(Main.PlayerHandle, "amb@savegame", "lie_on_bed_r"))
+                isSleeping = false;
         }
         public void ProcessMenu()
         {
@@ -368,48 +457,7 @@ namespace MissionStuff.ivsdk
             else
                 GET_GAME_TIMER(out mTimer);
 
-            //if (actionMenu.IsActive && IS_CONTROL_JUST_PRESSED(0, (int)GameKey.NavBack))
-                //actionMenu.Hide();
-
             actionMenu.Tick();
-        }
-        public static List<int> GetWeaponInventory(bool IncludeMelee)
-        {
-            List<int> inventory = new List<int>();
-
-            for (int i = 0; i <= 8; i++)
-            {
-                GET_CHAR_WEAPON_IN_SLOT(Main.PlayerPed.GetHandle(), i, out int weaponInSlot, out _, out _);
-                if (weaponInSlot == 0) continue;
-
-                var info = IVWeaponInfo.GetWeaponInfo((uint)weaponInSlot);
-                if (info == null) continue;
-
-                if (info.FireType != 0 || IncludeMelee)
-                {
-                    inventory.Add(weaponInSlot);
-                }
-            }
-
-            return inventory;
-        }
-        public static Dictionary<int, int> GetWeaponAmmoCounts()
-        {
-            Dictionary<int, int> ammoCounts = new Dictionary<int, int>();
-
-            foreach (int weapon in GetWeaponInventory(false))
-            {
-                GET_AMMO_IN_CHAR_WEAPON(Main.PlayerPed.GetHandle(), (int)weapon, out int ammo);
-                ammoCounts[weapon] = ammo;
-            }
-
-            return ammoCounts;
-        }
-        public static float Clamp(float value, float min, float max)
-        {
-            if (value < min) return min;
-            if (value > max) return max;
-            return value;
         }
     }
 }

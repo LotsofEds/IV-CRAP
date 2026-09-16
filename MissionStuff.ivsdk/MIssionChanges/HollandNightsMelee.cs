@@ -3,11 +3,12 @@ using CCL.GTAIV;
 using IVSDKDotNet;
 using IVSDKDotNet.Enums;
 using IVSDKDotNet.Native;
+using MissionStuff.ivsdk.Helpers;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Numerics;
-using System.Drawing;
 using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
@@ -341,8 +342,8 @@ namespace MissionStuff.ivsdk
             {
                 if (removeWeapons)
                 {
-                    inventory = Main.GetWeaponInventory(fistOnly ? true : false);
-                    ammo = Main.GetWeaponAmmoCounts();
+                    inventory = GenHelp.GetWeaponInventory(fistOnly ? true : false);
+                    ammo = GenHelp.GetWeaponAmmoCounts();
 
                     if (fistOnly)
                         REMOVE_ALL_CHAR_WEAPONS(Main.PlayerHandle);

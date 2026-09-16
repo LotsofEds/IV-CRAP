@@ -3,6 +3,7 @@ using CCL.GTAIV;
 using IVSDKDotNet;
 using IVSDKDotNet.Enums;
 using IVSDKDotNet.Native;
+using MissionStuff.ivsdk.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlTypes;
@@ -51,7 +52,7 @@ namespace MissionStuff.ivsdk
                 
                 if (pDist >= minDist)
                 {
-                    float moveSpd = Main.Clamp(1 + ((pDist - minDist) * scaleFactor), 1.0f, maxSpd);
+                    float moveSpd = GenHelp.Clamp(1 + ((pDist - minDist) * scaleFactor), 1.0f, maxSpd);
                     //IVGame.ShowSubtitleMessage(moveSpd.ToString());
                     SET_CHAR_MOVE_ANIM_SPEED_MULTIPLIER(pedHandle, moveSpd);
                 }

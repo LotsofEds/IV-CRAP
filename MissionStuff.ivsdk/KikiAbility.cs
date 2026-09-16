@@ -2,6 +2,7 @@
 using CCL.GTAIV;
 using IVSDKDotNet;
 using IVSDKDotNet.Enums;
+using MissionStuff.ivsdk.Helpers;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -40,8 +41,8 @@ namespace MissionStuff.ivsdk
             {
                 if (HAS_CHAR_BEEN_ARRESTED(Main.PlayerHandle) && !playerArrested)
                 {
-                    Main.GetWeaponInventory(true);
-                    Main.GetWeaponAmmoCounts();
+                    GenHelp.GetWeaponInventory(true);
+                    GenHelp.GetWeaponAmmoCounts();
                     playerArrested = true;
                 }
                 else if (playerArrested && !HAS_CHAR_BEEN_ARRESTED(Main.PlayerHandle) && IS_SCREEN_FADING_IN())

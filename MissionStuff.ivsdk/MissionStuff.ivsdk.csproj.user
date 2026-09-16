@@ -2,7 +2,7 @@
 <Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
     <StartAction>Program</StartAction>
-    <StartProgram>C:\Games\GTAIV - Copy\GTAIV.exe</StartProgram>
-    <StartWorkingDirectory>C:\Games\GTAIV - Copy\</StartWorkingDirectory>
+    <StartProgram>C:\Games\GTAIV\GTAIV.exe</StartProgram>
+    <StartWorkingDirectory>C:\Games\GTAIV\</StartWorkingDirectory>
   </PropertyGroup>
 </Project>

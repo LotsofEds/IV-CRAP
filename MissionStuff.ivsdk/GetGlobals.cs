@@ -27,23 +27,35 @@ namespace MissionStuff.ivsdk
             if (getVal)
                 return;
 
+            IVPadValues[] ass = IVPad.GetPad().Values;
+            IVPad.GetPad().GetUIntPtr();
             // maxLim = 65535
             for (int i = lowerLimit; i < upperLimit; i++)
             {
-                if (!settings.DoesKeyExists("MAIN", "var" + i.ToString()))
+                /*if (!settings.DoesKeyExists("MAIN", "var" + i.ToString()))
                     settings.AddKeyToSection("MAIN", "var" + i.ToString());
 
                 //settings.SetValue("MAIN", "var" + i.ToString(), IVTheScripts.GlobalVariables[i].ToString());
-                settings.SetValue("MAIN", "var" + i.ToString(), IVTheScripts.GetGlobalInteger(i).ToString());
+                settings.SetValue("MAIN", "var" + i.ToString(), ass[i].CurrentValue.ToString());
                 settings.Save();
-                settings.Load();
+                settings.Load();*/
+                //if (IVTheScripts.GetGlobalInteger(i) == 1)
+                //{
+                    if (!settings.DoesKeyExists("MAIN", "var" + i.ToString()))
+                        settings.AddKeyToSection("MAIN", "var" + i.ToString());
+
+                    //settings.SetValue("MAIN", "var" + i.ToString(), IVTheScripts.GlobalVariables[i].ToString());
+                    settings.SetValue("MAIN", "var" + i.ToString(), IVTheScripts.GetGlobalInteger(i).ToString());
+                    settings.Save();
+                    settings.Load();
+                //}
             }
             getVal = true;
         }
         public static void Tick()
         {
             if (NativeControls.IsGameKeyPressed(0, GameKey.LookBehind))
-            getVars(varSettings, 10000, 15000);
+            getVars(varSettings, 9084, 9085);
         }
     }
 }
