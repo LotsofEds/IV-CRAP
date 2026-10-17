@@ -45,9 +45,6 @@ namespace MissionStuff.ivsdk
 
         // CutsceneShit
         private static int cutsceneSeq = -1;
-        /*private static bool triggerGunCutscene;
-        private static bool startGunCutscene;
-        private static bool endGunCutscene;*/
 
         // SpawnsNShit
         private static int[] fenceObj = new int[10];
@@ -74,13 +71,8 @@ namespace MissionStuff.ivsdk
         private static int cam2;
         private static int interpCam;
 
-        private static int CreateObject_DontRequestModel(int hash, float x, float y, float z, float heading)
-        {
-            int obj;
-            CREATE_OBJECT_NO_OFFSET(hash, x, y, z, out obj, true);
-            SET_OBJECT_HEADING(obj, heading);
-            return obj;
-        }
+        // All this code is kinda fucking ass, rewrite this some day moron.
+
         private static void RestoreWeapons()
         {
             foreach (var weapon in inventory)
@@ -186,47 +178,47 @@ namespace MissionStuff.ivsdk
             if (IS_PLAYER_CONTROL_ON(Main.PlayerIndex))
             {
                 // Main Fences & Gates
-                fenceObj[0] = CreateObject_DontRequestModel(GET_HASH_KEY("bm_fence_13"), -57.6508f, 1325.15f, 20.7074f, 90f);
-                fenceObj[1] = CreateObject_DontRequestModel(GET_HASH_KEY("bm_fence_13"), -61.0304f, 1327.25f, 26.2806f, -90f);
-                fenceObj[2] = CreateObject_DontRequestModel(GET_HASH_KEY("bm_fence_13"), -61.0304f, 1327.25f, 30.6326f, -90f);
-                fenceObj[3] = CreateObject_DontRequestModel(GET_HASH_KEY("bm_fence_13"), -118.663f, 1325.15f, 20.7074f, 90f);
-                fenceObj[4] = CreateObject_DontRequestModel(GET_HASH_KEY("bm_fence_13"), -115.287f, 1327.25f, 26.2806f, -90f);
-                fenceObj[5] = CreateObject_DontRequestModel(GET_HASH_KEY("bm_fence_13"), -115.287f, 1327.25f, 30.6326f, -90f);
+                fenceObj[0] = ObjectHelper.CreateObject_DontRequestModel(GET_HASH_KEY("bm_fence_13"), -57.6508f, 1325.15f, 20.7074f, 90f);
+                fenceObj[1] = ObjectHelper.CreateObject_DontRequestModel(GET_HASH_KEY("bm_fence_13"), -61.0304f, 1327.25f, 26.2806f, -90f);
+                fenceObj[2] = ObjectHelper.CreateObject_DontRequestModel(GET_HASH_KEY("bm_fence_13"), -61.0304f, 1327.25f, 30.6326f, -90f);
+                fenceObj[3] = ObjectHelper.CreateObject_DontRequestModel(GET_HASH_KEY("bm_fence_13"), -118.663f, 1325.15f, 20.7074f, 90f);
+                fenceObj[4] = ObjectHelper.CreateObject_DontRequestModel(GET_HASH_KEY("bm_fence_13"), -115.287f, 1327.25f, 26.2806f, -90f);
+                fenceObj[5] = ObjectHelper.CreateObject_DontRequestModel(GET_HASH_KEY("bm_fence_13"), -115.287f, 1327.25f, 30.6326f, -90f);
 
-                gateObj[0] = CreateObject_DontRequestModel(GET_HASH_KEY("bm_gate_13"), -57.6508f, 1326.54f, 20.4627f, 90f);
-                gateObj[1] = CreateObject_DontRequestModel(GET_HASH_KEY("bm_gate_13"), -61.0304f, 1325.86f, 26.0338f, -90f);
-                gateObj[2] = CreateObject_DontRequestModel(GET_HASH_KEY("bm_gate_13"), -61.0304f, 1325.86f, 30.3858f, -90f);
-                gateObj[3] = CreateObject_DontRequestModel(GET_HASH_KEY("bm_gate_13"), -118.663f, 1326.54f, 20.4627f, 90f);
-                gateObj[4] = CreateObject_DontRequestModel(GET_HASH_KEY("bm_gate_13"), -115.287f, 1325.86f, 26.0338f, -90f);
-                gateObj[5] = CreateObject_DontRequestModel(GET_HASH_KEY("bm_gate_13"), -115.287f, 1325.86f, 30.3858f, -90f);
+                gateObj[0] = ObjectHelper.CreateObject_DontRequestModel(GET_HASH_KEY("bm_gate_13"), -57.6508f, 1326.54f, 20.4627f, 90f);
+                gateObj[1] = ObjectHelper.CreateObject_DontRequestModel(GET_HASH_KEY("bm_gate_13"), -61.0304f, 1325.86f, 26.0338f, -90f);
+                gateObj[2] = ObjectHelper.CreateObject_DontRequestModel(GET_HASH_KEY("bm_gate_13"), -61.0304f, 1325.86f, 30.3858f, -90f);
+                gateObj[3] = ObjectHelper.CreateObject_DontRequestModel(GET_HASH_KEY("bm_gate_13"), -118.663f, 1326.54f, 20.4627f, 90f);
+                gateObj[4] = ObjectHelper.CreateObject_DontRequestModel(GET_HASH_KEY("bm_gate_13"), -115.287f, 1325.86f, 26.0338f, -90f);
+                gateObj[5] = ObjectHelper.CreateObject_DontRequestModel(GET_HASH_KEY("bm_gate_13"), -115.287f, 1325.86f, 30.3858f, -90f);
 
                 // Prevent the player from reaching Clarence until beating all goons
-                fenceObj[6] = CreateObject_DontRequestModel(GET_HASH_KEY("cj_fence_23_3"), -57.1592f, 1306.21f, 39.0867f, 0f);
-                fenceObj[7] = CreateObject_DontRequestModel(GET_HASH_KEY("cj_fence_23_3"), -39.8481f, 1306.21f, 39.0867f, 180f);
-                fenceObj[8] = CreateObject_DontRequestModel(GET_HASH_KEY("cj_fence_23_3"), -136.4392f, 1306.21f, 39.0867f, 0f);
-                fenceObj[9] = CreateObject_DontRequestModel(GET_HASH_KEY("cj_fence_23_3"), -119.1281f, 1306.21f, 39.0867f, 180f);
+                fenceObj[6] = ObjectHelper.CreateObject_DontRequestModel(GET_HASH_KEY("cj_fence_23_3"), -57.1592f, 1306.21f, 39.0867f, 0f);
+                fenceObj[7] = ObjectHelper.CreateObject_DontRequestModel(GET_HASH_KEY("cj_fence_23_3"), -39.8481f, 1306.21f, 39.0867f, 180f);
+                fenceObj[8] = ObjectHelper.CreateObject_DontRequestModel(GET_HASH_KEY("cj_fence_23_3"), -136.4392f, 1306.21f, 39.0867f, 0f);
+                fenceObj[9] = ObjectHelper.CreateObject_DontRequestModel(GET_HASH_KEY("cj_fence_23_3"), -119.1281f, 1306.21f, 39.0867f, 180f);
 
-                postObj[0] = CreateObject_DontRequestModel(GET_HASH_KEY("cj_fence_23_pst"), -51.0392f, 1306.21f, 37.8497f, 0f);
-                postObj[1] = CreateObject_DontRequestModel(GET_HASH_KEY("cj_fence_23_pst"), -45.969f, 1306.21f, 37.8497f, 0f);
-                postObj[2] = CreateObject_DontRequestModel(GET_HASH_KEY("cj_fence_23_pst"), -130.3192f, 1306.21f, 37.8497f, 0f);
-                postObj[3] = CreateObject_DontRequestModel(GET_HASH_KEY("cj_fence_23_pst"), -125.249f, 1306.21f, 37.8497f, 0f);
+                postObj[0] = ObjectHelper.CreateObject_DontRequestModel(GET_HASH_KEY("cj_fence_23_pst"), -51.0392f, 1306.21f, 37.8497f, 0f);
+                postObj[1] = ObjectHelper.CreateObject_DontRequestModel(GET_HASH_KEY("cj_fence_23_pst"), -45.969f, 1306.21f, 37.8497f, 0f);
+                postObj[2] = ObjectHelper.CreateObject_DontRequestModel(GET_HASH_KEY("cj_fence_23_pst"), -130.3192f, 1306.21f, 37.8497f, 0f);
+                postObj[3] = ObjectHelper.CreateObject_DontRequestModel(GET_HASH_KEY("cj_fence_23_pst"), -125.249f, 1306.21f, 37.8497f, 0f);
 
-                gateObj[6] = CreateObject_DontRequestModel(GET_HASH_KEY("cj_gate_3_7r"), -51.0518f, 1306.21f, 39.3297f, 180f);
-                gateObj[7] = CreateObject_DontRequestModel(GET_HASH_KEY("cj_fence_23_3"), -51.0518f, 1306.21f, 42.3297f, 0f);
-                gateObj[8] = CreateObject_DontRequestModel(GET_HASH_KEY("cj_gate_3_7r"), -130.3318f, 1306.21f, 39.3297f, 180f);
-                gateObj[9] = CreateObject_DontRequestModel(GET_HASH_KEY("cj_fence_23_3"), -130.3318f, 1306.21f, 42.3297f, 0f);
+                gateObj[6] = ObjectHelper.CreateObject_DontRequestModel(GET_HASH_KEY("cj_gate_3_7r"), -51.0518f, 1306.21f, 39.3297f, 180f);
+                gateObj[7] = ObjectHelper.CreateObject_DontRequestModel(GET_HASH_KEY("cj_fence_23_3"), -51.0518f, 1306.21f, 42.3297f, 0f);
+                gateObj[8] = ObjectHelper.CreateObject_DontRequestModel(GET_HASH_KEY("cj_gate_3_7r"), -130.3318f, 1306.21f, 39.3297f, 180f);
+                gateObj[9] = ObjectHelper.CreateObject_DontRequestModel(GET_HASH_KEY("cj_fence_23_3"), -130.3318f, 1306.21f, 42.3297f, 0f);
 
                 // Doors leading outside
-                doors[0] = CreateObject_DontRequestModel(GET_HASH_KEY("cj_ext_door_9"), -57.303f, 1326.84f, 34.9383f, -90f);
-                doors[1] = CreateObject_DontRequestModel(GET_HASH_KEY("cj_ext_door_9"), -119.012f, 1326.84f, 34.9383f, -90f);
+                doors[0] = ObjectHelper.CreateObject_DontRequestModel(GET_HASH_KEY("cj_ext_door_9"), -57.303f, 1326.84f, 34.9383f, -90f);
+                doors[1] = ObjectHelper.CreateObject_DontRequestModel(GET_HASH_KEY("cj_ext_door_9"), -119.012f, 1326.84f, 34.9383f, -90f);
 
                 // Invisible fences that get removed if the player progresses
-                invisFence[0] = CreateObject_DontRequestModel(GET_HASH_KEY("bm_fence_13"), -89.1963f, 1301.54f, 25.4303f, 120f);
-                invisFence[1] = CreateObject_DontRequestModel(GET_HASH_KEY("bm_fence_13"), -78.9455f, 1300.7f, 34.2933f, 90f);
-                invisFence[2] = CreateObject_DontRequestModel(GET_HASH_KEY("bm_gate_13"), -88.2908f, 1329.7f, 34.6934f, 90f);
-                invisFence[3] = CreateObject_DontRequestModel(GET_HASH_KEY("bm_fence_13"), -102.636f, 1325.021f, 25.4303f, 0f);
-                invisFence[4] = CreateObject_DontRequestModel(GET_HASH_KEY("bm_fence_13"), -64.547f, 1327.449f, 25.4303f, 90f);
-                invisFence[5] = CreateObject_DontRequestModel(GET_HASH_KEY("bm_fence_13"), -116.346f, 1328.352f, 25.4303f, 135f);
+                invisFence[0] = ObjectHelper.CreateObject_DontRequestModel(GET_HASH_KEY("bm_fence_13"), -89.1963f, 1301.54f, 25.4303f, 120f);
+                invisFence[1] = ObjectHelper.CreateObject_DontRequestModel(GET_HASH_KEY("bm_fence_13"), -78.9455f, 1300.7f, 34.2933f, 90f);
+                invisFence[2] = ObjectHelper.CreateObject_DontRequestModel(GET_HASH_KEY("bm_gate_13"), -88.2908f, 1329.7f, 34.6934f, 90f);
+                invisFence[3] = ObjectHelper.CreateObject_DontRequestModel(GET_HASH_KEY("bm_fence_13"), -102.636f, 1325.021f, 25.4303f, 0f);
+                invisFence[4] = ObjectHelper.CreateObject_DontRequestModel(GET_HASH_KEY("bm_fence_13"), -64.547f, 1327.449f, 25.4303f, 90f);
+                invisFence[5] = ObjectHelper.CreateObject_DontRequestModel(GET_HASH_KEY("bm_fence_13"), -116.346f, 1328.352f, 25.4303f, 135f);
 
                 // Invisible fences that never get removed
                 //invisFence[3] = CreateObject_DontRequestModel(GET_HASH_KEY("bm_gate_13"), -118.812f, 1328.67f, 33.6875f, 90f);
@@ -577,7 +569,6 @@ namespace MissionStuff.ivsdk
             else if (Main.gTimer >= fTimer + 5800 && cutsceneSeq == 3)
             {
                 GET_WEAPONTYPE_MODEL(weaponToGive, out uint weapModel);
-
                 CREATE_OBJECT((int)weapModel, clarencePos.X, clarencePos.Y, clarencePos.Z, out fakeGun, true);
                 SET_OBJECT_DYNAMIC(fakeGun, true);
                 _TASK_LOOK_AT_OBJECT(Main.PlayerHandle, fakeGun, 3000, 0);

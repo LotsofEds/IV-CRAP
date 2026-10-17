@@ -29,5 +29,12 @@ namespace MissionStuff.ivsdk
                 }
             }
         }
+        public static int CreateObject_DontRequestModel(int hash, float x, float y, float z, float heading)
+        {
+            int obj;
+            CREATE_OBJECT_NO_OFFSET(hash, x, y, z, out obj, true);
+            SET_OBJECT_HEADING(obj, heading);
+            return obj;
+        }
     }
 }

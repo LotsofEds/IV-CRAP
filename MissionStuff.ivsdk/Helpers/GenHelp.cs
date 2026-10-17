@@ -165,4 +165,30 @@ namespace MissionStuff.ivsdk.Helpers
         {
         }
     }
+    public class FoodData
+    {
+        public string ID { get; set; }
+        public string Name { get; set; }
+        public string Desc { get; set; }
+        public int Price { get; set; }
+        public int MaxAmount { get; set; }
+        public int FoodAmt { get; set; }
+        public int ThirstAmt { get; set; }
+        public int Count { get; set; }
+        public FoodData() { }
+    }
+    public class ParkourData
+    {
+        public Vector3 Location { get; set; }
+        public float Heading { get; set; }
+        public int TimeLimit { get; set; }
+        public int Blip { get; set; }
+        public List<Vector3> Checkpoints { get; set; }
+        public List<int> Props { get; set; }
+        public List<string> PropModels { get; set; }
+        public List<Vector3> PropLocs { get; set; }
+        public List<Vector3> PropRots { get; set; }
+        public bool Complete { get; set; }
+        public ParkourData() { }
+    }
 }

@@ -1,6 +1,7 @@
 ﻿using CCL.GTAIV;
 using IVSDKDotNet;
 using IVSDKDotNet.Enums;
+using MissionStuff.ivsdk.MissionChanges;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -50,13 +51,14 @@ namespace MissionStuff.ivsdk
         public static bool tutorialEnable;
         public static bool ragingBullEnable;
 
-        // HangoutRewards
+        // HangoutRewards/SideActs
         public static bool romanRevenueEnable;
         public static bool pillsEnable;
         public static bool brucieEnable;
         public static bool carmenEnable;
         public static bool kikiEnable;
         public static bool alexEnable;
+        public static bool parkourEnable;
 
         // MissionShit
         public static bool timedToBlowEnable;
@@ -68,6 +70,9 @@ namespace MissionStuff.ivsdk
         public static bool masterBaitEnable;
         public static bool chaseExtendEnable;
         public static bool explosiveTrapEnable;
+        public static bool portraitOfAVictimEnable;
+        public static bool streetScatterEnable;
+        public static bool gracieBlockadeEnable;
 
         // SettingsFileShit
         public static SettingsFile mainSettings;
@@ -137,6 +142,8 @@ namespace MissionStuff.ivsdk
                 FoodMenu.IngameStart();
             if (sleepEnable)
                 Insomnia.IngameStart();
+            if (parkourEnable)
+                ParkourSideAct.IngameStart();
         }
         private void Main_Uninitialize(object sender, EventArgs e)
         {
@@ -156,6 +163,11 @@ namespace MissionStuff.ivsdk
             TutorialThings.UnInit();
             FoodMenu.UnInit();
             RagingBull.UnInit();
+            PortraitOfAVictim.UnInit();
+            GracieBlockade.UnInit();
+            StreetScatter.UnInit();
+            ParkourSideAct.UnInit();
+            //CleanGetaway.UnInit();
         }
         private void Main_Initialized(object sender, EventArgs e)
         {
@@ -225,6 +237,8 @@ namespace MissionStuff.ivsdk
                 KikiAbility.Init(Settings);
             if (alexEnable)
                 AlexAbility.Init(Settings);
+            if (parkourEnable)
+                ParkourSideAct.Init(Settings);
 
             if (timedToBlowEnable)
                 TimedToBlow.Init(Settings);
@@ -246,6 +260,13 @@ namespace MissionStuff.ivsdk
                 ExplosiveNegotiation.Init(Settings);
             if (ragingBullEnable)
                 RagingBull.Init(Settings);
+            if (portraitOfAVictimEnable)
+                PortraitOfAVictim.Init(Settings);
+            if (gracieBlockadeEnable)
+                GracieBlockade.Init(Settings);
+            if (streetScatterEnable)
+                StreetScatter.Init(Settings);
+            //CleanGetaway.Init(Settings);
             //GetGlobals.Init();
         }
         private static void Init(SettingsFile settings)
@@ -281,6 +302,7 @@ namespace MissionStuff.ivsdk
             carmenEnable = settings.GetBoolean("CARING CARMEN", "Enable", false);
             kikiEnable = settings.GetBoolean("BETTER CALL KIKI", "Enable", false);
             alexEnable = settings.GetBoolean("LIBERATED MAN", "Enable", false);
+            parkourEnable = settings.GetBoolean("PARKOUR COURSES", "Enable", false);
 
             timedToBlowEnable = settings.GetBoolean("TIMED TO BLOW", "Enable", false);
             heartTimeEnable = settings.GetBoolean("PACEMAKER", "Enable", false);
@@ -292,6 +314,9 @@ namespace MissionStuff.ivsdk
             chaseExtendEnable = settings.GetBoolean("B-BUT SCRIPTED CHASES BAAAD", "Enable", false);
             explosiveTrapEnable = settings.GetBoolean("EXPLOSIVE NEGOTIATION", "Enable", false);
             ragingBullEnable = settings.GetBoolean("RAGING BULL", "Enable", false);
+            portraitOfAVictimEnable = settings.GetBoolean("PURSUIT OF A KILLER", "Enable", false);
+            streetScatterEnable = settings.GetBoolean("STREET SCATTER", "Enable", false);
+            gracieBlockadeEnable = settings.GetBoolean("GRACEFUL DETOUR", "Enable", false);
 
             menuKey = settings.GetInteger("MAIN", "MenuKey", 0);
         }
@@ -383,7 +408,6 @@ namespace MissionStuff.ivsdk
                 KikiAbility.Tick();
             if (alexEnable)
                 AlexAbility.Tick();
-
             //GoodEnding.Tick();
 
             //GetGlobals.Tick();
@@ -408,6 +432,15 @@ namespace MissionStuff.ivsdk
                 ExplosiveNegotiation.Tick();
             if (ragingBullEnable)
                 RagingBull.Tick();
+            if (portraitOfAVictimEnable)
+                PortraitOfAVictim.Tick();
+            if (gracieBlockadeEnable)
+                GracieBlockade.Tick();
+            if (streetScatterEnable)
+                StreetScatter.Tick();
+            if (parkourEnable)
+                ParkourSideAct.Tick();
+            //CleanGetaway.Tick();
 
             ProcessSleep();
             // All functions that write something to the savefile go here.
@@ -426,6 +459,8 @@ namespace MissionStuff.ivsdk
                     ThirstHunger.SaveThirstAndHunger(savefileSettings);
                 if (sleepEnable)
                     Insomnia.SaveSleepAmount(savefileSettings);
+                if (parkourEnable)
+                    ParkourSideAct.SaveData();
             }
             // This is to make the fucking simple menu work properly.
             if (IS_CONTROL_JUST_PRESSED(0, (int)GameKey.NavUp) || IS_CONTROL_JUST_PRESSED(0, (int)GameKey.NavDown)

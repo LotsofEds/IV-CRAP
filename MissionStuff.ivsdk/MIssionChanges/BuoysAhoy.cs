@@ -358,8 +358,7 @@ namespace MissionStuff.ivsdk
                     {
                         _TASK_CAR_DRIVE_TO_COORD(berniePed, pVeh, 900.053f, -892.568f, 0.0f, 25.0f, 1, 0, 0, 20.0f, 45000);
 
-                        CREATE_CAR(GET_HASH_KEY("jetmax"), 827.708f, -949.809f, 0, out enemyVehicles[1], true);
-                        SET_CAR_HEADING(enemyVehicles[1], 45);
+                        enemyVehicles[1] = VehHelper.SpawnCar("jetmax", new Vector3(827.708f, -949.809f, 0), 45, false);
                     }
                     else if (bernieCheckPoint == 1)
                     {
@@ -371,8 +370,7 @@ namespace MissionStuff.ivsdk
                         _TASK_CAR_DRIVE_TO_COORD(driverPeds[1], enemyVehicles[1], 782.036f, -862.989f, 0.0f, 25.0f, 1, 0, 0, 20.0f, 45000);
                         GIVE_WEAPON_TO_CHAR(shooterPeds[1], enemyWeaponB, 9999, true);
 
-                        CREATE_CAR(GET_HASH_KEY("jetmax"), 718.853f, -897.707f, 0, out enemyVehicles[2], true);
-                        SET_CAR_HEADING(enemyVehicles[2], 45);
+                        enemyVehicles[2] = VehHelper.SpawnCar("jetmax", new Vector3(718.853f, -897.707f, 0), 45, false);
                     }
                     else if (bernieCheckPoint == 2)
                     {
@@ -385,12 +383,10 @@ namespace MissionStuff.ivsdk
                         GIVE_WEAPON_TO_CHAR(shooterPeds[2], enemyWeaponB, 9999, true);
 
                         // 795.732, -663.598, 90 -- 651.395, -597.315
-                        CREATE_CAR(GET_HASH_KEY("jetmax"), 795.732f, -663.598f, 0, out enemyVehicles[3], true);
-                        SET_CAR_HEADING(enemyVehicles[3], 320);
+                        enemyVehicles[3] = VehHelper.SpawnCar("jetmax", new Vector3(795.732f, -663.598f, 0), 320, false);
 
                         // 734.611, -565.419, 125
-                        CREATE_CAR(GET_HASH_KEY("squalo"), 734.611f, -565.419f, 0, out enemyVehicles[4], true);
-                        SET_CAR_HEADING(enemyVehicles[4], 125);
+                        enemyVehicles[4] = VehHelper.SpawnCar("squalo", new Vector3(734.611f, -565.419f, 0), 125, false);
                     }
                     else if (bernieCheckPoint == 3)
                     {
@@ -409,8 +405,7 @@ namespace MissionStuff.ivsdk
                         GIVE_WEAPON_TO_CHAR(shooterPeds[4], enemyWeaponB, 9999, true);
 
                         // 411.376, -434.724, 270
-                        CREATE_CAR(GET_HASH_KEY("squalo"), 411.376f, -434.724f, 0, out enemyVehicles[5], true);
-                        SET_CAR_HEADING(enemyVehicles[5], 270);
+                        enemyVehicles[5] = VehHelper.SpawnCar("squalo", new Vector3(411.376f, -434.724f, 0), 270, false);
 
                         MARK_CHAR_AS_NO_LONGER_NEEDED(driverPeds[0]);
                         //MARK_CHAR_AS_NO_LONGER_NEEDED(driverPeds[1]);
@@ -425,8 +420,7 @@ namespace MissionStuff.ivsdk
                         _TASK_CAR_DRIVE_TO_COORD(berniePed, pVeh, 482.485f, -436.772f, 0.0f, 20.0f, 1, 0, 0, 20.0f, 45000);
 
                         // 410.090, -380.657, 270
-                        CREATE_CAR(GET_HASH_KEY("squalo"), 410.090f, -380.657f, 0, out enemyVehicles[6], true);
-                        SET_CAR_HEADING(enemyVehicles[6], 270);
+                        enemyVehicles[6] = VehHelper.SpawnCar("squalo", new Vector3(410.090f, -380.657f, 0), 270, false);
 
                         MARK_CHAR_AS_NO_LONGER_NEEDED(driverPeds[1]);
                         MARK_CHAR_AS_NO_LONGER_NEEDED(shooterPeds[1]);
@@ -451,8 +445,7 @@ namespace MissionStuff.ivsdk
                         pedCheckpoint = 0;
 
                         // 472.001, -211.134, 30
-                        CREATE_CAR(GET_HASH_KEY("squalo"), 472.001f, -211.134f, 0, out enemyVehicles[7], true);
-                        SET_CAR_HEADING(enemyVehicles[7], 30);
+                        enemyVehicles[7] = VehHelper.SpawnCar("squalo", new Vector3(472.001f, -211.134f, 0), 30, false);
 
                         MARK_CHAR_AS_NO_LONGER_NEEDED(driverPeds[2]);
                         MARK_CHAR_AS_NO_LONGER_NEEDED(shooterPeds[2]);
@@ -479,8 +472,7 @@ namespace MissionStuff.ivsdk
                         _TASK_CAR_DRIVE_TO_COORD(berniePed, pVeh, 376.749f, -81.512f, 0.0f, 25.0f, 1, 0, 0, 20.0f, 45000);
 
                         // 284.845, 187.376, 0
-                        CREATE_CAR(GET_HASH_KEY("jetmax"), 284.845f, 187.376f, 0, out enemyVehicles[8], true);
-                        SET_CAR_HEADING(enemyVehicles[8], 0);
+                        enemyVehicles[8] = VehHelper.SpawnCar("jetmax", new Vector3(284.845f, 187.376f, 0), 0, false);
 
                         MARK_CHAR_AS_NO_LONGER_NEEDED(driverPeds[4]);
                         MARK_CHAR_AS_NO_LONGER_NEEDED(shooterPeds[4]);
@@ -497,8 +489,7 @@ namespace MissionStuff.ivsdk
                         MARK_CAR_AS_NO_LONGER_NEEDED(enemyVehicles[5]);
 
                         // 245.368, 246.036, 345
-                        CREATE_CAR(GET_HASH_KEY("jetmax"), 245.368f, 246.036f, 0, out enemyVehicles[9], true);
-                        SET_CAR_HEADING(enemyVehicles[9], 345);
+                        enemyVehicles[9] = VehHelper.SpawnCar("jetmax", new Vector3(245.368f, 246.036f, 0), 345, false);
                     }
                     else if (bernieCheckPoint == 9)
                     {
@@ -517,8 +508,7 @@ namespace MissionStuff.ivsdk
                         GIVE_WEAPON_TO_CHAR(shooterPeds[9], enemyWeaponA, 9999, true);
 
                         // 296.643, 544.845, 30
-                        CREATE_CAR(GET_HASH_KEY("jetmax"), 296.643f, 544.845f, 0, out enemyVehicles[10], true);
-                        SET_CAR_HEADING(enemyVehicles[10], 30);
+                        enemyVehicles[10] = VehHelper.SpawnCar("jetmax", new Vector3(296.643f, 544.845f, 0), 30, false);
                     }
                     else if (bernieCheckPoint == 10)
                     {
@@ -545,12 +535,10 @@ namespace MissionStuff.ivsdk
                         GIVE_WEAPON_TO_CHAR(shooterPeds[10], enemyWeaponA, 9999, true);
 
                         // 296.735, 739.097, 0
-                        CREATE_CAR(GET_HASH_KEY("jetmax"), 296.735f, 739.097f, 0, out enemyVehicles[11], true);
-                        SET_CAR_HEADING(enemyVehicles[11], 0);
+                        enemyVehicles[11] = VehHelper.SpawnCar("jetmax", new Vector3(296.735f, 739.097f, 0), 0, false);
 
                         // 210.260, 727.156, 345
-                        CREATE_CAR(GET_HASH_KEY("jetmax"), 220.648f, 738.216f, 0, out enemyVehicles[12], true);
-                        SET_CAR_HEADING(enemyVehicles[12], 345);
+                        enemyVehicles[12] = VehHelper.SpawnCar("jetmax", new Vector3(220.648f, 738.216f, 0), 345, false);
                     }
                     else if (bernieCheckPoint == 12)
                     {
@@ -592,8 +580,7 @@ namespace MissionStuff.ivsdk
                         GIVE_WEAPON_TO_CHAR(shooterPeds[12], enemyWeaponA, 9999, true);
 
                         // 290.904, 1201.204, 260
-                        CREATE_CAR(GET_HASH_KEY("jetmax"), 290.904f, 1201.204f, 0, out enemyVehicles[13], true);
-                        SET_CAR_HEADING(enemyVehicles[13], 260);
+                        enemyVehicles[13] = VehHelper.SpawnCar("jetmax", new Vector3(290.904f, 1201.204f, 0), 260, false);
                     }
                     else if (bernieCheckPoint == 13)
                     {
@@ -632,8 +619,7 @@ namespace MissionStuff.ivsdk
                         MARK_CAR_AS_NO_LONGER_NEEDED(enemyVehicles[8]);
 
                         // 498.625, 1129.392, 0
-                        CREATE_CAR(GET_HASH_KEY("jetmax"), 498.625f, 1129.392f, 0, out enemyVehicles[14], true);
-                        SET_CAR_HEADING(enemyVehicles[14], 0);
+                        enemyVehicles[14] = VehHelper.SpawnCar("jetmax", new Vector3(498.625f, 1129.392f, 0), 0, false);
                     }
                     else if (bernieCheckPoint == 14)
                     {
@@ -788,7 +774,7 @@ namespace MissionStuff.ivsdk
                             SET_CHAR_CAN_BE_SHOT_IN_VEHICLE(pedHandle, false);
 
                             //CREATE_CAR(GET_HASH_KEY("squalo"), 1188.035f, -1009.409f, 0, out enemyVehicles[0], true);
-                            CREATE_CAR(GET_HASH_KEY("squalo"), 1188.035f, -938.572f, 0, out enemyVehicles[0], true);
+                            enemyVehicles[0] = VehHelper.SpawnCar("squalo", new Vector3(1188.035f, -938.572f, 0), 0, false);
                             //CREATE_CAR(GET_HASH_KEY("squalo"), 1208.035f, -938.572f, 0, out enemyVehicles[1], true);
 
                             bernieCheckPoint = -1;

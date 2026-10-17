@@ -98,7 +98,8 @@ namespace MissionStuff.ivsdk
                     if (Main.gTimer >= fTimer + timeLimit)
                     {
                         IVGame.ShowSubtitleMessage("~s~Some ~r~workers~s~ have arrived to guard the place.", 4000);
-                        CREATE_CAR(GET_HASH_KEY(carToSpawn), 618.162f, 1481.202f, 12.465f, out pVeh, true);
+
+                        pVeh = VehHelper.SpawnCar(carToSpawn, new Vector3(618.162f, 1481.202f, 12.465f), 0, true);
                         /*CREATE_CHAR_INSIDE_CAR(pVeh, (int)ePedType.PED_TYPE_GANG_RUSSIAN_GANG, (uint)GET_HASH_KEY("m_m_gru2_hi_01"), out int pPed1);
                         CREATE_CHAR_AS_PASSENGER(pVeh, (int)ePedType.PED_TYPE_GANG_RUSSIAN_GANG, (uint)GET_HASH_KEY("m_m_gru2_hi_01"), 0, out int pPed2);
                         CREATE_CHAR_AS_PASSENGER(pVeh, (int)ePedType.PED_TYPE_GANG_RUSSIAN_GANG, (uint)GET_HASH_KEY("m_m_gru2_hi_01"), 1, out int pPed3);

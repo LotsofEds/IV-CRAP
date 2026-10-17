@@ -213,8 +213,7 @@ namespace MissionStuff.ivsdk
 
             else
             {
-                CREATE_CAR(GET_HASH_KEY(carModel), pos, out brucieCar, true);
-                SET_CAR_HEADING(brucieCar, heading);
+                brucieCar = VehHelper.SpawnCar(carModel, pos, heading, true);
 
                 LOCK_CAR_DOORS(brucieCar, 7);
 
