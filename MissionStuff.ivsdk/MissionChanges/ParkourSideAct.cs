@@ -20,6 +20,7 @@ namespace MissionStuff.ivsdk.MissionChanges
     {
         // IniShit
         private static bool autoSave;
+        private static bool lockIvan;
         private static bool showBlip;
         private static float defaultStamina;
         private static float staminaIncr;
@@ -147,6 +148,7 @@ namespace MissionStuff.ivsdk.MissionChanges
             }
 
             autoSave = settings.GetBoolean("PARKOUR COURSES", "AutosaveAfterCompletion", false);
+            lockIvan = settings.GetBoolean("PARKOUR COURSES", "UnlockOnlyAfterTutorial", false);
             showBlip = settings.GetBoolean("PARKOUR COURSES", "ShowBlips", false);
             defaultStamina = settings.GetFloat("PARKOUR COURSES", "DefaultStamina", 600);
             staminaIncr = settings.GetFloat("PARKOUR COURSES", "StaminaIncrease", 20);
@@ -192,6 +194,9 @@ namespace MissionStuff.ivsdk.MissionChanges
                 UnInit();
                 gameStart = true;
             }
+
+            if (lockIvan && Main.currEp == 0 && GET_FLOAT_STAT(4) < 90)
+                return;
 
             ProcessStamina();
             ProcessBlips();

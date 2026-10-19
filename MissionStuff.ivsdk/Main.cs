@@ -84,6 +84,7 @@ namespace MissionStuff.ivsdk
         public static int menuKey;
 
         // OtherShit
+        public static uint currEp;
         public static uint gTimer;
         public static uint mTimer;
         public static float frameTime;
@@ -340,6 +341,7 @@ namespace MissionStuff.ivsdk
 
             GET_GAME_TIMER(out gTimer);
             GET_FRAME_TIME(out frameTime);
+            currEp = GET_CURRENT_EPISODE();
 
             PedHelper.GrabAllPeds();
             VehHelper.GrabAllVehicles();
