@@ -31,6 +31,8 @@ namespace MissionStuff.ivsdk.MissionChanges
         private static bool gameStart;
         private static bool startMission;
         private static bool startCourse;
+        private static bool coursePreview;
+        private static bool stopCourse;
         private static bool showHelp;
         private static bool hasFailed;
         private static bool passCourse;
@@ -78,7 +80,9 @@ namespace MissionStuff.ivsdk.MissionChanges
             fTimer = 0;
             startMission = false;
             startCourse = false;
+            coursePreview = false;
             showHelp = false;
+            stopCourse = false;
             courseIndex = 0;
             checkPtIndex = 0;
         }
@@ -97,7 +101,7 @@ namespace MissionStuff.ivsdk.MissionChanges
                 newCourse.Heading = courseSettings.GetFloat(sectionNames[i], "StartHeading", 0);
                 newCourse.TimeLimit = courseSettings.GetInteger(sectionNames[i], "TimeLimit", 0);
 
-                newCourse.Checkpoints = new List<Vector3>();
+                newCourse.Checkpoints = new List<Vector4>();
                 newCourse.Props = new List<int>();
                 newCourse.PropModels = new List<string>();
                 newCourse.PropLocs = new List<Vector3>();
@@ -111,7 +115,7 @@ namespace MissionStuff.ivsdk.MissionChanges
                 {
                     if (keys[c].Contains("Checkpoint"))
                     {
-                        Vector3 checkpoint = courseSettings.GetVector3(sectionNames[i], keys[c], Vector3.Zero);
+                        Vector4 checkpoint = courseSettings.GetVector4(sectionNames[i], keys[c], Vector4.Zero);
                         newCourse.Checkpoints.Add(checkpoint);
                     }
 
@@ -198,24 +202,33 @@ namespace MissionStuff.ivsdk.MissionChanges
             if (lockIvan && Main.currEp == 0 && GET_FLOAT_STAT(4) < 90)
                 return;
 
+            RequestScripts();
             ProcessStamina();
             ProcessBlips();
             ProcessMissionStart();
-            if (startMission && !startCourse)
+            if (startMission && !startCourse && !stopCourse)
             {
                 if (SpawnCourseProps())
                     StartCourse();
-                ProcessCount();
+                if (!coursePreview)
+                    ProcessCount();
+                else if (!IS_SCREEN_FADING())
+                {
+                    ProcessCourse();
+                    ProcessTimer();
+                    PreviewCourse();
+                }
             }
-            else
+            else if (startCourse)
             {
-                RequestScripts();
                 ProcessTimer();
                 ProcessFail();
                 ProcessCourse();
             }
             if (showHelp)
                 ShowHelp();
+
+            StopCourse();
         }
         private static void RequestScripts()
         {
@@ -305,10 +318,10 @@ namespace MissionStuff.ivsdk.MissionChanges
             SET_PLAYER_CONTROL(Main.PlayerIndex, false);
             SET_MISSION_FLAG(true);
             DO_SCREEN_FADE_OUT(1000);
-            checkPtIndex = 0;
             fTimer = 0;
             courseIndex = index;
             startMission = true;
+            coursePreview = true;
         }
         private static bool SpawnCourseProps()
         {
@@ -349,8 +362,9 @@ namespace MissionStuff.ivsdk.MissionChanges
         }
         private static void StartCourse()
         {
-            if (fTimer == 0)
+            if (fTimer == 0 && IS_SCREEN_FADED_OUT())
             {
+                checkPtIndex = 0;
                 SET_CHAR_COORDINATES(Main.PlayerHandle, courseList[courseIndex].Location);
                 SET_CHAR_HEADING(Main.PlayerHandle, courseList[courseIndex].Heading);
                 Main.PlayerPed.PlayerInfo.Stamina = defaultStamina + staminaIncr * staminaUpgrades;
@@ -359,6 +373,8 @@ namespace MissionStuff.ivsdk.MissionChanges
 
             else if (Main.gTimer >= fTimer + 1000 && IS_SCREEN_FADED_OUT())
             {
+                CLEAR_PRINTS();
+                CLEAR_HELP();
                 SET_GAME_CAM_PITCH(0.0f);
                 SET_GAME_CAM_HEADING(0.0f);
                 SET_CAM_BEHIND_PED(Main.PlayerHandle);
@@ -410,12 +426,53 @@ namespace MissionStuff.ivsdk.MissionChanges
                 }
             }
         }
+        private static void PreviewCourse()
+        {
+            IVText.TheIVText.ReplaceTextOfTextLabel("TM_2_25", "~s~Use ~PAD_LEFT~ and ~PAD_RIGHT~ to cycle through checkpoints.~n~Press ~INPUT_PICKUP~ to cancel.~n~Press ~INPUT_PHONE_ACCEPT~ to start the parkour challenge.");
+            
+            if (!IS_THIS_HELP_MESSAGE_BEING_DISPLAYED("TM_2_25"))
+                PRINT_HELP_FOREVER("TM_2_25");
+
+            List<Vector4> checkpoints = courseList[courseIndex].Checkpoints;
+            if (IS_CONTROL_JUST_PRESSED(2, (int)GameKey.NavLeft))
+            {
+                if (checkPtIndex > 1)
+                {
+                    checkPtIndex -= 2;
+                    _SET_CHAR_COORDINATES_NO_OFFSET(Main.PlayerHandle, checkpoints[checkPtIndex].X, checkpoints[checkPtIndex].Y, checkpoints[checkPtIndex].Z);
+                    SET_CHAR_HEADING(Main.PlayerHandle, checkpoints[checkPtIndex].W);
+                }
+                else if (checkPtIndex > 0)
+                {
+                    checkPtIndex = 0;
+                    _SET_CHAR_COORDINATES_NO_OFFSET(Main.PlayerHandle, courseList[courseIndex].Location.X, courseList[courseIndex].Location.Y, courseList[courseIndex].Location.Z);
+                    SET_CHAR_HEADING(Main.PlayerHandle, courseList[courseIndex].Heading);
+                }
+            }
+            else if (IS_CONTROL_JUST_PRESSED(2, (int)GameKey.NavRight) && checkPtIndex < checkpoints.Count)
+            {
+                _SET_CHAR_COORDINATES_NO_OFFSET(Main.PlayerHandle, checkpoints[checkPtIndex].X, checkpoints[checkPtIndex].Y, checkpoints[checkPtIndex].Z);
+                SET_CHAR_HEADING(Main.PlayerHandle, checkpoints[checkPtIndex].W);
+            }
+            else if (IS_CONTROL_JUST_PRESSED(2, (int)GameKey.NavEnter))
+            {
+                CLEAR_PRINTS();
+                CLEAR_HELP();
+                DO_SCREEN_FADE_OUT(1000);
+                fTimer = 0;
+                coursePreview = false;
+                StartCourse();
+            }
+            else if (IS_CONTROL_JUST_PRESSED(2, (int)GameKey.Action))
+            {
+                DO_SCREEN_FADE_OUT(1000);
+
+                stopCourse = true;
+            }
+        }
         private static void ProcessCourse()
         {
-            if (!startCourse)
-                return;
-
-            List<Vector3> checkpoints = courseList[courseIndex].Checkpoints;
+            List<Vector4> checkpoints = courseList[courseIndex].Checkpoints;
 
             if (!DOES_BLIP_EXIST(checkPtBlip))
             {
@@ -436,34 +493,35 @@ namespace MissionStuff.ivsdk.MissionChanges
                     checkPtMarker = CREATE_CHECKPOINT(3, checkpoints[checkPtIndex].X, checkpoints[checkPtIndex].Y, checkpoints[checkPtIndex].Z + 1.0f,
                         checkpoints[checkPtIndex + 1].X, checkpoints[checkPtIndex + 1].Y, checkpoints[checkPtIndex + 1].Z + 1.0f, 0.25f);*/
 
-                ADD_BLIP_FOR_COORD(checkpoints[checkPtIndex].X, checkpoints[checkPtIndex].Y, checkpoints[checkPtIndex].Z, out int newBlip);
+                if (checkPtIndex <= checkpoints.Count - 1)
+                {
+                    ADD_BLIP_FOR_COORD(checkpoints[checkPtIndex].X, checkpoints[checkPtIndex].Y, checkpoints[checkPtIndex].Z, out int newBlip);
 
-                NativeBlip currBlip = new NativeBlip(newBlip);
-                currBlip.Display = eBlipDisplay.BLIP_DISPLAY_ARROW_AND_MAP;
+                    NativeBlip currBlip = new NativeBlip(newBlip);
+                    currBlip.Display = eBlipDisplay.BLIP_DISPLAY_ARROW_AND_MAP;
 
-                if (checkPtIndex == checkpoints.Count - 1)
-                    CHANGE_BLIP_SPRITE(newBlip, (uint)BlipIcon.Misc_FinishLine);
+                    if (checkPtIndex == checkpoints.Count - 1)
+                        CHANGE_BLIP_SPRITE(newBlip, (uint)BlipIcon.Misc_FinishLine);
 
-                currBlip.ShowOnlyWhenNear = false;
-                checkPtBlip = newBlip;
+                    currBlip.ShowOnlyWhenNear = false;
+                    checkPtBlip = newBlip;
+                }
             }
 
-            if (LOCATE_CHAR_ON_FOOT_3D(Main.PlayerHandle, checkpoints[checkPtIndex].X, checkpoints[checkPtIndex].Y, checkpoints[checkPtIndex].Z, 1.0f, 1.0f, 1.0f, true))
+            if (checkPtIndex <= checkpoints.Count - 1 && LOCATE_CHAR_ON_FOOT_3D(Main.PlayerHandle, checkpoints[checkPtIndex].X, checkpoints[checkPtIndex].Y, checkpoints[checkPtIndex].Z, 1.0f, 1.0f, 1.0f, true))
             {
                 checkPtIndex++;
+                if (!coursePreview)
                 PLAY_AUDIO_EVENT("FRONTEND_GAME_PICKUP_CHECKPOINT");
                 //DELETE_CHECKPOINT(checkPtMarker);
                 REMOVE_BLIP(checkPtBlip);
                 REMOVE_BLIP(nextCheckPtBlip);
-                if (checkPtIndex == checkpoints.Count)
+                if (checkPtIndex == checkpoints.Count && !coursePreview)
                     MissionPass();
             }
         }
         private static void ProcessTimer()
         {
-            if (!startCourse)
-                return;
-
             SET_TEXT_SCALE(0.25f, 0.5f);
             SET_TEXT_FONT(0);
             SET_TEXT_BACKGROUND(false);
@@ -472,7 +530,10 @@ namespace MissionStuff.ivsdk.MissionChanges
             SET_TEXT_PROPORTIONAL(true);
             SET_TEXT_CENTRE(true);
 
-            currentTime = (int)((fTimer + (uint)courseList[courseIndex].TimeLimit * 1000) - Main.gTimer);
+            if (!coursePreview)
+                currentTime = (int)((fTimer + (uint)courseList[courseIndex].TimeLimit * 1000) - Main.gTimer);
+            else
+                currentTime = courseList[courseIndex].TimeLimit * 1000;
 
             int min = currentTime / 1000 / 60 % 100;
             int sec = currentTime / 1000 % 60;
@@ -502,9 +563,6 @@ namespace MissionStuff.ivsdk.MissionChanges
         }
         private static void ProcessFail()
         {
-            if (!startCourse)
-                return;
-
             if (currentTime <= 0)
             {
                 IVText.TheIVText.ReplaceTextOfTextLabel("TM_2_25", "~r~You failed to complete the course in time.");
@@ -573,6 +631,24 @@ namespace MissionStuff.ivsdk.MissionChanges
                         NativeGame.DoAutoSave();
                 }
                 hasFailed = false;
+            }
+        }
+        private static void StopCourse()
+        {
+            if (!stopCourse)
+                return;
+
+            if (IS_SCREEN_FADED_OUT())
+            {
+                _SET_CHAR_COORDINATES_NO_OFFSET(Main.PlayerHandle, courseList[courseIndex].Location.X, courseList[courseIndex].Location.Y, courseList[courseIndex].Location.Z);
+                SET_CHAR_HEADING(Main.PlayerHandle, courseList[courseIndex].Heading);
+
+                SET_PLAYER_CONTROL(Main.PlayerIndex, true);
+
+                DO_SCREEN_FADE_IN(1000);
+
+                FinishMission();
+                SET_MISSION_FLAG(false);
             }
         }
     }

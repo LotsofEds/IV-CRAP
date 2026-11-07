@@ -183,7 +183,7 @@ namespace MissionStuff.ivsdk.Helpers
         public float Heading { get; set; }
         public int TimeLimit { get; set; }
         public int Blip { get; set; }
-        public List<Vector3> Checkpoints { get; set; }
+        public List<Vector4> Checkpoints { get; set; }
         public List<int> Props { get; set; }
         public List<string> PropModels { get; set; }
         public List<Vector3> PropLocs { get; set; }
